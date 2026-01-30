@@ -1,0 +1,107 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, u točno traženom formatu.
+
+---
+
+## 1. **Chat broj**
+
+**Chat #77**
+
+---
+
+## 2. **Naslov chata (tehnički precizan)**
+
+**Galerija MVP – SSO light, session cookie i odvojena gallery-app (Next.js App Router)**
+
+---
+
+## 3. **Faza projekta**
+
+**FAZA: Galerija MVP – infrastruktura i autentikacija (bez CRUD-a)**
+
+---
+
+## 4. **Što smo konkretno napravili / zaključili**
+
+* Kreirana **odvojena aplikacija `gallery-app`** (Next.js App Router, TS, Tailwind, shadcn/ui, dark theme), smještena kao sibling uz Vizi projekt.
+* Postavljen **SSO light flow**:
+
+  * Vizi `/api/gallery/sso` generira one-time token (60s, single-use).
+  * Gallery `/api/session` (route handler) verificira token preko Vizi API-ja.
+  * Cookie `gallery_session` (httpOnly, 7 dana) se **postavlja isključivo u route handleru** (ispravan Next.js pattern).
+* Riješen Next.js error:
+
+  * ❌ Cookie set u server page → **ispravljeno**.
+  * ✅ Cookie set samo u **Route Handleru**.
+* Uveden **SSO UX flow**:
+
+  * `/sso?token=...` → gumb **“Nastavi u galeriju”** → redirect `/albums`.
+* Zaštićena ruta `/albums`:
+
+  * Bez cookie-a → redirect natrag na `https://www.vizi.hr/app`.
+  * S cookie-em → prikaz stranice.
+* **End-to-end lokalni test uspješno prošao**:
+
+  * Vizi (`localhost:3000`) → Otvori galeriju
+  * Gallery (`localhost:3001`) → `/sso` → `/albums`
+* Trenutni UI `/albums`:
+
+  * Naslov **“Moji albumi”**
+  * Empty state: “Još nemaš albuma”
+  * Gumb “Natrag u Vizi”
+
+---
+
+## 5. **Što je IZRIČITO odlučeno / zaključano**
+
+* Galerija je **odvojena aplikacija** (nije dio Vizi codebasea).
+* Autentikacija galerije ide **isključivo preko SSO light + cookie**, bez Supabase Auth klijenta.
+* **Cookie se nikad ne postavlja u page komponentama**, samo u route handlerima.
+* Stack galerije mora biti **identičan Vizi-ju** (Next.js App Router, shadcn/ui, dark theme).
+* SSO faza je **ZAVRŠENA i STABILNA (PASS)**.
+
+---
+
+## 6. **Otvorene stavke**
+
+* Album CRUD još **nije implementiran**.
+* Gallery-app **još nema Supabase admin client** (service role).
+* `.env.local` u gallery-app **još nema**:
+
+  * `SUPABASE_URL`
+  * `SUPABASE_SERVICE_ROLE_KEY`
+* Nema još:
+
+  * upload slika
+  * kvota
+  * public prikaza galerije
+
+---
+
+## 7. **Sljedeći dogovoreni korak (samo jedan)**
+
+👉 **Album CRUD v1 u gallery-app: “Create album + List albums”**
+
+To uključuje:
+
+* Čitanje `gallery_albums` iz Supabasea (owner_id = session user_id).
+* Prikaz liste albuma na `/albums`.
+* Formu “Kreiraj album” (name + optional description).
+* Insert preko route handlera s **Supabase SERVICE ROLE**.
+
+*(bez slika, bez kvota, bez public viewa)*
+
+---
+
+## 8. **Napomena za nastavak u novom chatu**
+
+* U **novom chatu** odmah nastavljamo s **istim Cursor promptom za Album CRUD v1** (zadnji koji sam dao).
+* Prije pisanja koda:
+
+  * Cursor će izlistati koje **env varijable** treba dodati u `gallery-app`.
+  * Tek nakon toga ide SQL/CRUD implementacija.
+* Radimo **1 po 1 korak**, bez scope creepa.
+
+---
+
+Kad otvoriš **novi chat**, samo napiši:
+**“Nastavljamo – Album CRUD v1.”**

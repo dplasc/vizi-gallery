@@ -1,0 +1,91 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** za **OVAJ chat**, točno po traženom formatu, bez dodatnih ideja i bez scope creepa.
+
+---
+
+## 1. Chat broj
+
+**Chat #24**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — Launch landing (HR) + final legal pages (Privacy & Terms, GDPR-ready)**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 24 — Launch readiness**
+(podfaze: landing finalizacija + pravna priprema za tržište)
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Implementiran **minimalni launch landing (`/`)**:
+
+  * jasna launch poruka na hrvatskom
+  * input za username
+  * redirect na `/{username}`
+  * bez autha, baze i API-ja
+* Svi landing tekstovi **prevedeni i zaključani na hrvatskom**
+* Dodane **pravne stranice**:
+
+  * `/privacy` — Politika privatnosti
+  * `/terms` — Uvjeti korištenja
+* Pravne stranice:
+
+  * 100% na hrvatskom jeziku
+  * prilagođene **hrvatskom zakonu i GDPR-u**
+  * s punim podacima obrta (voditelj obrade)
+  * bez placeholdera
+* U **Uvjetima korištenja** uključena **točna, doslovna formulacija** o pretplatama:
+
+  > „Usluga je trenutno dostupna bez naknade.
+  > Pružatelj zadržava pravo uvesti naplatne pretplate u budućnosti, uz prethodnu obavijest korisnicima.“
+* Footer na landing stranici ažuriran:
+
+  * “Politika privatnosti” → `/privacy`
+  * “Uvjeti korištenja” → `/terms`
+* Sve promjene:
+
+  * lokalno provjerene
+  * commitane i pushane na `main`
+  * deployane na Vercel (automatski)
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Vizi.hr je **isključivo hrvatski proizvod** (svi javni tekstovi su na HR)
+* Launch poruka i landing struktura su **zaključani**
+* Pravne stranice su:
+
+  * **finalne**
+  * spremne za **uvođenje pretplata bez izmjena**
+* Pretplate:
+
+  * trenutno ne postoje
+  * pravno su unaprijed pokrivene
+* Privacy & Terms se **više ne diraju** osim ako se zakon promijeni
+
+---
+
+## 6. Otvorene stavke
+
+* **Nema otvorenih tehničkih ili pravnih stavki u ovom chatu**
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **Produkcijska verifikacija pravnih stranica**
+(potvrditi `/privacy` i `/terms` na produkciji)
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Pravni i launch foundation dio projekta je završen i stabilan.
+Novi chat započinje **nakon potvrde da su pravne stranice ispravne na produkciji**, s fokusom na **sljedeću launch fazu (post-launch ili monetization implementaciju)**.

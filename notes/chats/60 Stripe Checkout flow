@@ -1,0 +1,108 @@
+U redu. Ispod je **STRUCTURED SUMMARY / HANDOFF** za **OVAJ chat**, **čisto, precizno i spremno za nastavak**.
+
+---
+
+## 1. Chat broj
+
+**Chat #60**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — Stripe Checkout flow (TEST) + Dashboard upgrade CTA**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 60 — Stripe Checkout (TEST MODE)**
+**Status: ZAVRŠENA**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Postavljen kompletan **Stripe Checkout flow u TEST MODE-u**
+* Kreiran Stripe **Product + Price** za:
+
+  * **Vizi.hr PRO (Test)**
+  * **20 € godišnje**
+* Riješen **mode mismatch** (sk_test + test price)
+* Dodane i verificirane sve potrebne **Vercel ENV varijable**:
+
+  * `STRIPE_SECRET_KEY` (test)
+  * `STRIPE_WEBHOOK_SECRET` (placeholder)
+  * `STRIPE_PRO_PRODUCT_ID`
+  * `STRIPE_PRO_PRICE_ID` (test)
+* Implementirana **API ruta**:
+
+  * `POST /api/stripe/checkout`
+  * kreira Stripe Checkout Session (subscription)
+  * koristi auth user + metadata (`user_id`, `plan`)
+* Dodan **CTA gumb “Nadogradi na PRO”** na **/app (dashboard)**
+* Izvršen:
+
+  * `npm run build` (USPJEŠNO)
+  * commit + push
+  * produkcijski deploy (Ready)
+* End-to-end test:
+
+  * klik na “Nadogradi na PRO”
+  * uspješan redirect na **Stripe Checkout (TEST MODE)**
+  * ispravan prikaz:
+
+    * naziv
+    * cijena
+    * pretplata
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Stripe Checkout radi **isključivo u TEST MODE-u** dok se ne završi webhook
+* **Bez aktivacije PRO statusa bez webhooks**
+* Dashboard (**/app**) je **jedino mjesto** za upgrade
+* Public profil i profile edit **nikad** ne sadrže naplatu
+* Checkout logika i API ruta se **ne diraju** u sljedećem koraku
+* Cijena i plan:
+
+  * **PRO = 20 € godišnje**
+  * bez triala
+  * bez add-ona
+
+---
+
+## 6. Otvorene stavke
+
+* ❗ **PRO status se još ne aktivira u Supabaseu**
+* `STRIPE_WEBHOOK_SECRET` je još **placeholder**
+* Nema webhook endpointa povezanog u Stripe dashboardu
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **FAZA 61 — Stripe Webhook + aktivacija PRO u Supabaseu**
+
+Konkretno:
+
+* implementacija webhook endpointa
+* verifikacija Stripe potpisa
+* upis / update u `public.subscriptions`
+* dodjela PRO statusa korisniku
+
+*(prompt za ovaj korak je već unesen u drugom chatu)*
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s kontekstom:
+
+> **“FAZA 60 (Stripe Checkout TEST) je završena i potvrđena.
+> Checkout session radi i redirecta na Stripe.
+> Nastavljamo FAZU 61 — Stripe webhook + PRO aktivacija u Supabaseu.
+> Prompt za webhook je već unesen u Cursor i čeka izvješće.”**
+
+Ja sam spreman **preuzeti dalje u tom chatu** čim pošalješ izvješće iz Cursor-a.

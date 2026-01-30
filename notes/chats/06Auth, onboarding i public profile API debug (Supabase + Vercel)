@@ -1,0 +1,87 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** bez dodataka i bez novih ideja.
+
+---
+
+## 1. Chat broj
+
+**Chat #6**
+
+## 2. Naslov chata
+
+**Vizi.hr — Auth, onboarding i public profile API debug (Supabase + Vercel)**
+
+## 3. Faza projekta
+
+**FAZA 2 → FAZA 3 (Auth flow + Username & Public profile)**
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Uspješno postavljen i verificiran **custom domain `vizi.hr`** (Cloudflare + Vercel).
+* Uspješno riješen **Supabase Auth flow**:
+
+  * signup
+  * email confirmation
+  * login
+  * session handling
+* Dodane i ispravno konfigurirane **Vercel env varijable**:
+
+  * `SUPABASE_URL`
+  * `SUPABASE_ANON_KEY`
+  * `NEXT_PUBLIC_SUPABASE_URL`
+  * `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+* Ispravljen problem s korištenjem **lokalnog Supabase URL-a (`127.0.0.1`) u produkciji**.
+* Ispravljen problem s **hardcodiranim `localhost:3001`** u `app/[username]/page.tsx`:
+
+  * uklonjen `BASE_URL`
+  * prebačeno na relativne / apsolutne URL-ove za SSR
+* Kreirana **`profiles` tablica** u Supabaseu s RLS pravilima:
+
+  * public read
+  * authenticated insert/update (own row)
+* Debugiran i ispravljen **API endpoint**:
+
+  * `/api/public/profiles/by-username/[username]`
+  * uklonjena pogrešna tablica `public_profiles`
+  * endpoint sada koristi `profiles`
+* Endpoint sada:
+
+  * koristi anon/publishable key (bez service role)
+  * ima 404 za “Not found”
+  * ima 500 za “Internal error”
+* Više kontrolnih commitova napravljenih i deployanih (zadnji: `b0da688`).
+
+## 5. Što je IZRIČITO odlučeno (zaključano)
+
+* **Ne koristi se `public_profiles` tablica** — samo `profiles`.
+* **Service role key se ne koristi** za public read endpoint.
+* Public profile endpoint mora:
+
+  * vratiti 404 kad profil ne postoji
+  * vratiti 200 kad postoji
+* Debug poruke i detaljni Supabase errori **ne smiju ostati javno izloženi**.
+* Radimo isključivo **putem Cursor promptova** (bez ručnog otvaranja fajlova).
+
+## 6. Otvorene stavke
+
+* Public profile API endpoint **i dalje vraća**:
+
+  ```json
+  { "ok": false, "error": "Internal error" }
+  ```
+
+  iako je tablica `profiles` ispravna.
+* Potrebno je:
+
+  * izolirati **točan Supabase error** (permission, schema, column, RLS mismatch)
+  * ili identificirati grešku u **Supabase client inicijalizaciji / queryju**.
+* Onboarding **Save username** još ne prolazi zbog gore navedenog.
+
+## 7. Sljedeći dogovoreni korak (jedan)
+
+**U novom chatu: izolirati i popraviti točan uzrok `Internal error` u `/api/public/profiles/by-username/[username]` (Supabase query / RLS / client init).**
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s ovim handoffom.
+Projekt je stabilan na razini autha i infrastrukture; preostao je **jedan backend bug u public profile API-ju** koji blokira završetak FAZE 3.
+

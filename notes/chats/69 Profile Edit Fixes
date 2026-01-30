@@ -1,0 +1,91 @@
+Naravno. Evo **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, u točno traženom formatu.
+
+---
+
+## 1. Chat broj
+
+**Chat #69**
+
+---
+
+## 2. Naslov chata (tehnički precizan)
+
+**Profile Edit Fixes: Username Validation Sync, Save Form POST, Avatar Upload FREE + PRO Gating Cleanup**
+
+---
+
+## 3. Faza projekta
+
+**FAZA: Stabilizacija core profila + monetizacija (post-enforcement cleanup)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Sinkronizirali **username validaciju**:
+
+  * Registracija / onboarding sada koristi **ista pravila** kao profile edit (`^[a-z0-9-]{3,24}$`)
+  * Onemogućeno kreiranje “legacy” usernamea s točkom
+* Popravljen bug gdje **gornji Save na `/profile/edit` nije spremao**:
+
+  * Dodan `method="post"` na Form A (profil podaci)
+  * Potvrđeno da su forme sibling (nema nested form bugova)
+* Detektiran i riješen **legacy username** u bazi (`oglasavajse.hr` → `oglasavajse-hr`):
+
+  * One-time SQL fix u `profiles`
+* Implementiran **avatar upload endpoint preko server API-ja**
+* Ispravljena produktna odluka:
+
+  * ❌ Avatar pogrešno gated kao PRO
+  * ✅ Avatar vraćen kao **FREE feature**
+* Uklonjen sav PRO / limits gating iz `app/api/profile/avatar/route.ts`
+* Očišćen repo (uklonjeni `less` artefakti i encoding junk file)
+* Produkcijski test potvrđen:
+
+  * ✅ FREE user može uploadati avatar
+  * ✅ Avatar se sprema i ostaje nakon refresh
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* **Avatar upload je FREE** za sve ulogirane korisnike
+* **Header / cover image ostaje PRO**
+* Username pravila su **jedinstvena u cijelom sustavu** (registracija + edit)
+* `/profile/edit` je **source of truth** za javni profil
+* Ne brišemo račune radi legacy bugova — rješavamo ih **kontroliranim migracijama**
+
+---
+
+## 6. Otvorene stavke
+
+* UX poboljšanje:
+
+  * jasnije označiti razliku između **Dashboard** i **Profile Edit**
+* Vizualno razdvojiti FREE vs PRO featuree (badge / label consistency)
+* Eventualno:
+
+  * inline validacija username polja (prije submita)
+
+*(ništa od ovoga nije blocker)*
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+**Zaključiti monetizacijski model za PRO (što točno ulazi u PRO osim header image i galerije)**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+U novom chatu:
+
+* krećemo **čisto**, bez bug-fix konteksta
+* fokus isključivo na **PRO feature set + cijene**
+* radimo **1 odluku po koraku**, bez scope creepa
+
+👉 Sljedeći chat možeš započeti s:
+**“Idemo definirati PRO paket za Vizi.hr.”**
+
+Kad god si spreman — ja vodim dalje. 💪

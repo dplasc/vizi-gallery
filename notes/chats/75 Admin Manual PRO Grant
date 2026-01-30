@@ -1,0 +1,105 @@
+🎉 BRAVO. Ovo je bio **težak, ali ključan chat** — i sad je stvar **stvarno gotova**.
+
+Ispod je traženi **STRUCTURED SUMMARY / HANDOFF** u točnom formatu.
+
+---
+
+## 1. Chat broj
+
+**Chat #75**
+
+---
+
+## 2. Naslov chata (tehnički precizan)
+
+**Admin Manual PRO Grant/Revoke – Supabase Auth, RLS i Cookie Handling Fix**
+
+---
+
+## 3. Faza projekta
+
+**FAZA: Monetizacija & Admin kontrola (Manual PRO flow – FINALIZACIJA)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Implementiran **potpuno funkcionalan Manual PRO Grant / Revoke flow** iz admin panela
+* Razdvojeni **READ** i **WRITE** pristupi:
+
+  * READ: server components koriste admin client (service role)
+  * WRITE: Grant/Revoke ide isključivo kroz server API rute
+* Kreirane API rute:
+
+  * `/api/admin/subscriptions/grant`
+  * `/api/admin/subscriptions/revoke`
+* Riješen **Supabase RLS problem** za admin operacije (service-role client)
+* Riješen **auth problem u Route Handlers** (cookies binding)
+* Riješen **kritični bug s cookie parsingom**:
+
+  * `@supabase/auth-helpers-nextjs` je radio `JSON.parse` nad base64 cookiejima
+  * zamijenjeno s `@supabase/ssr` browser clientom
+* Napravljen **non-breaking fix** u `lib/supabase/server.ts` da prima `cookies()` za route handlere
+* UI sada ispravno:
+
+  * prikazuje **Grant PRO** kad je FREE
+  * prikazuje **Revoke PRO** kad je PRO
+  * nakon akcije + hard refresh stanje je konzistentno
+* Potvrđeno u produkciji: **Radi za sve račune**
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* ✅ **Manual PRO flow je ZAKLJUČAN kao gotova funkcionalnost**
+* ❌ Ne koristi se više `@supabase/auth-helpers-nextjs` u client komponentama
+* ✅ Standard:
+
+  * Browser auth → `@supabase/ssr`
+  * Admin writes → server API + service role
+* ❌ Ne diramo RLS politike radi admina (admin ide preko service role)
+* ❌ Ne oslanjamo se na `app_metadata` za role — koristi se **profiles.role**
+
+---
+
+## 6. Otvorene stavke
+
+* Nema otvorenih bugova vezanih uz:
+
+  * PRO status
+  * admin kontrolu
+  * auth / cookies
+* (Opcionalno za kasnije)
+
+  * Audit log admin akcija (grant/revoke)
+  * Soft UI toast umjesto hard refresha
+
+---
+
+## 7. Sljedeći dogovoreni korak (SAMO JEDAN)
+
+👉 **Prijelaz na sljedeći monetizacijski feature**
+**(npr. PRO-only feature gating / usage limits / gallery quota logika)**
+
+> Ti biraš točno koji — ja vodim implementaciju.
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+* U novom chatu **ne vraćamo se na Manual PRO**
+* Pretpostavlja se da:
+
+  * Grant/Revoke radi
+  * Auth stack je stabilan
+  * Admin ima punu kontrolu
+* U novom chatu odmah krećemo s **novim featureom / fazom**
+
+---
+
+Ako želiš, u **sljedećoj poruci** mogu:
+
+* predložiti **3 logična sljedeća koraka** (CTO roadmap)
+* ili odmah krenuti s **jednim konkretnim featureom (korak 1/1)**
+
+Ti vodiš — ja sam tu. 💪

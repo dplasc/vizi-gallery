@@ -1,0 +1,103 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, strogo po traženom formatu.
+
+---
+
+## 1. Chat broj
+
+**Chat #48**
+
+---
+
+## 2. Naslov chata
+
+**FAZA 50 — Public profile UX polish: CTA cleanup, spacing system, owner-only navigation**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 50 — Public profile UX polish (ZAKLJUČENA)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Uklonjen **dupli CTA “Uredi profil”** s public profila
+
+  * ostao samo jedan smislen CTA
+* Ispravljen CTA styling:
+
+  * primary CTA vidljiv na dark temi
+  * sekundarne akcije neutralne
+* Standardiziran **spacing sustav** na public profilu:
+
+  * ujednačeni paddinzi (`p-6 / sm:p-8`)
+  * dosljedan vertical rhythm (`space-y-6`)
+  * uklonjeni kaotični breakpoint razmaci
+* Vizualno dotjeran **Share section** da prati ostale kartice
+* **Authenticated user bar** (admin izgled) uklonjen s public profila
+* Implementiran **Owner-only ribbon**:
+
+  * vidi se samo vlasniku profila
+  * omogućuje povratak u `/dashboard` i `/profile/edit`
+  * ne prikazuje se javnim posjetiteljima
+* Vizualno **smanjen i “utopljen” owner ribbon**:
+
+  * uklonjena full-width linija
+  * manji font, manji gumbi
+  * ribbon je utility, ne sekcija
+* Svi koraci:
+
+  * commitani
+  * pushani
+  * testirani vizualno
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Public profil **ne smije izgledati kao admin UI**
+* Authenticated user bar se **NE vraća**
+* Owner-only navigacija:
+
+  * mora biti **diskretna**
+  * bez agresivnih CTA gumbova
+* Spacing sustav public profila je **zaključan**
+* FAZA 50 je **gotova i više se ne dira**
+
+---
+
+## 6. Otvorene stavke
+
+* **Nema otvorenih stavki** iz FAZE 50
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **FAZA 51 — Public profile actions & sharing**
+
+* QR code
+* Share (copy / WhatsApp / mobile native)
+* “Dodaj u kontakte” (vCard)
+
+*(krenuti tek nakon eksplicitne potvrde)*
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s kontekstom:
+
+> **“FAZA 50 je u potpunosti završena i zaključana.
+> Public profil izgleda kao premium digitalna vizitka.
+> Krećemo u FAZU 51 — Public profile actions & sharing.”**
+
+Bez vraćanja na:
+
+* CTA hijerarhiju
+* owner ribbon
+* spacing
+* header profila
+
+Spremno za nastavak kad ti kažeš.

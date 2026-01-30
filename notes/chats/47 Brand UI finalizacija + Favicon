@@ -1,0 +1,100 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, **točno po traženom formatu**, bez novih ideja i bez scope creepa.
+
+---
+
+## 1. Chat broj
+
+**Chat #47**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — Brand UI finalizacija + Favicon debug & force replace (Next.js App Router)**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 46 → FAZA 49 (Branding, Landing UI polish & favicon završetak)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Finaliziran **globalni header**:
+
+  * dodan brand logo
+  * riješeni spacing, kontrast i veličina
+  * korištena **bijela verzija loga** za dark header
+* Finaliziran **landing page UI**:
+
+  * uklonjen dupli “Vizi.hr” branding
+  * usklađen glavni CTA s brand plavom
+  * sekundarni linkovi (“Prijava · Registracija”, “Privatnost · Uvjeti”) **neutralizirani**
+* Definiran i zaključan **Brand Color Lock v1**:
+
+  * brand blue samo za **primary CTA**
+  * sekundarne akcije neutralne
+* Implementiran **favicon i browser branding**:
+
+  * Metadata icons (`icon`, `apple`)
+  * dodan `favicon.ico` fallback
+  * dodan legacy `shortcut icon`
+* Detektiran i riješen **edge-case problem s krivim favicon.ico**:
+
+  * krivi binary file serviran u produkciji
+  * izvršen **force replace** s novim imenom (`favicon-vizi.ico`)
+  * ažurirane sve reference u `app/layout.tsx`
+* Repo očišćen od generiranih/viška favicon fajlova
+* Potvrđeno:
+
+  * favicon se ispravno prikazuje u browser tabu
+  * deploy stabilan (`main`, Vercel Ready)
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* **Landing page UI = FINAL v1**
+* **Brand boje**:
+
+  * brand blue koristi se **isključivo za primary CTA**
+  * sekundarni linkovi i utility akcije su neutralni
+* **Globalni header**:
+
+  * layout, logo, spacing i kontrast su zaključani
+* **Branding & favicon**:
+
+  * koristi se `favicon-vizi.ico`
+  * favicon tema je **zauvijek zatvorena**
+* Nema daljnjeg diranja:
+
+  * headera
+  * landing dizajna
+  * favicon/metadata
+
+---
+
+## 6. Otvorene stavke
+
+* **Nema otvorenih tehničkih ili dizajnerskih stavki** iz ovog chata.
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **FAZA 50 — Public profile UX polish**
+(fokus na korisnički profil koji se dijeli: kartice, CTA hijerarhija, mobilni razmaci)
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s kontekstom:
+
+> **“Nakon FAZE 49.
+> Branding, landing i favicon su zaključani i stabilni.
+> Krećemo s FAZOM 50 — Public profile UX polish.”**
+
+Bez vraćanja na branding, favicon ili landing UI.

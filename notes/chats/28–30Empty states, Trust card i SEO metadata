@@ -1,0 +1,84 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, točno po traženom formatu, bez novih ideja i bez scope creepa.
+
+---
+
+## 1. Chat broj
+
+**Chat #31**
+
+---
+
+## 2. Naslov chata
+
+**FAZA 28–30: Empty states, Trust card i SEO metadata (Open Graph & Twitter)**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 28 → FAZA 30 (završene)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* **FAZA 28 — Empty states**
+
+  * Implementiran **Empty profile state** na public profilu (`/[username]`)
+  * Prikazuje se samo kada profil nema bio/headline, lokaciju, website i social linkove
+  * UI-only Card s CTA gumbom **“Uredi profil”** (link na `/profile/edit`)
+  * Tekst 100% HR, brand tokens, shadcn Card/Button
+  * Commit: **e8f829e**, deploy uspješan
+
+* **FAZA 29 — Username not found (404) polish**
+
+  * Implementiran premium **404 state** za nepostojeće username-e
+  * Datoteka: `app/[username]/not-found.tsx`
+  * Card-based UI, HR tekst, CTA **“Kreiraj svoj profil”**
+  * Produkcijski potvrđeno vizualno i funkcionalno
+  * Commit: **872c657**, deploy uspješan
+
+* **FAZA 30 — SEO & Sharing metadata (v1)**
+
+  * Dodani globalni metadata (title, description, OG, Twitter) za homepage
+  * Implementiran `generateMetadata` za public profile (`/[username]`)
+  * Dinamički title/description iz postojećih podataka profila
+  * Sigurni fallbackovi za:
+
+    * opis (ako nema headline-a)
+    * og:image (placeholder putanje)
+    * nepostojeći username
+  * Meta Sharing Debugger potvrđuje da metadata postoji
+  * Commit: **a25a324**, deploy uspješan
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Empty profile state i 404 state su **zaključani** (UI i tekst)
+* Trust card (Google recenzije) ostaje **v1 placeholder**, bez baze i API-ja
+* SEO metadata implementacija je **v1 gotova** i ne dira se dalje
+* Upozorenja u Meta Debuggeru (`fb:app_id`) se **ignoriraju**
+* Nedostatak OG slike je **očekivan** u ovoj fazi
+
+---
+
+## 6. Otvorene stavke
+
+* **Nedostaju OG image asseti**:
+
+  * `/public/og/home.png`
+  * `/public/og/profile.png`
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **FAZA 31 — OG image assets (home + profile)**
+(izrada i dodavanje brand OG slika za dijeljenje linkova)
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s **FAZA 31 — OG images**, bez diranja postojeće SEO logike. Fokus je isključivo na izradi i dodavanju slika u `public/og/` te provjeri previewa u Meta Sharing Debuggeru.

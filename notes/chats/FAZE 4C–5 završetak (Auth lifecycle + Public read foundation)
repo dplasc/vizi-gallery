@@ -1,0 +1,98 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** točno u traženom formatu, bez novih ideja i bez proširenja scopea.
+
+---
+
+## 1. Chat broj
+
+**Chat #6**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — FAZE 4C–5 završetak (Auth lifecycle + Public read foundation)**
+
+---
+
+## 3. Faza projekta
+
+* **FAZA 4C — Profile lifecycle (završena)**
+* **FAZA 5 — Public profile read (završena)**
+* Priprema za **FAZA 6 — Public profile API**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Uveden **auth callback lifecycle**:
+
+  * dodana nova ruta `app/auth/callback/route.ts`
+  * nakon `exchangeCodeForSession` poziva se `bootstrapProfile()` ako postoji user
+  * redirect flow ostaje netaknut
+* Finaliziran `bootstrapProfile()` helper:
+
+  * podržava poziv **bez argumenata** (standardni server flow)
+  * podržava **opts { user, supabase }** za auth callback (bez oslanjanja na cookies)
+  * jedan source of truth za profile bootstrap
+  * tipovi očišćeni (SupabaseServer alias, bez dupliciranja)
+* Commitan i zaključen auth + bootstrap dio:
+
+  * commit: `feat(auth): bootstrap profiles on auth callback`
+* Implementiran **public read temelj u bazi**:
+
+  * dodan view `public.public_profiles` (samo `id`, `full_name`)
+  * anon može čitati **isključivo** preko viewa
+  * anon SELECT na `public.profiles` eksplicitno ukinut (`REVOKE`)
+  * dodana RLS policy za anon SELECT (row-level = all rows)
+* Migracije:
+
+  * `20260121_profiles_rls.sql`
+  * `20260122_profiles_public_read.sql`
+  * redoslijed ispravan, bez konflikta na clean resetu
+* Lokalno potvrđeno:
+
+  * migracije prolaze
+  * view postoji
+  * `select * from public.public_profiles` radi (0 redova je očekivano stanje)
+
+---
+
+## 5. Što je IZRIČITO odlučeno (zaključano)
+
+* `bootstrapProfile()` je **jedini službeni način** kreiranja profila
+* Profile bootstrap se:
+
+  * **ne** radi u middlewareu
+  * **ne** radi u DB triggerima
+  * radi se **isključivo** u auth callbacku i eksplicitno u kodu
+* Public pristup:
+
+  * anon **nikad** ne čita iz `public.profiles`
+  * public surface ide **isključivo preko viewa**
+* View `public.public_profiles`:
+
+  * sadrži samo `id`, `full_name`
+  * nema emaila ni privatnih podataka
+* FAZE 4C i 5 su **zauvijek zaključane**
+
+---
+
+## 6. Otvorene stavke
+
+* Nema otvorenih stavki iz FAZA 4C i FAZA 5
+
+---
+
+## 7. Sljedeći dogovoreni korak (jedan)
+
+* **FAZA 6 — Public profile API**
+
+  * implementirati GET rutu koja čita **isključivo** iz `public.public_profiles`
+  * bez autha, bez UI-a
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat treba započeti s ovim handoffom.
+Nastavljamo **FAZU 6** isključivo na API sloju (public read), bez promjena baze i bez UI-a.

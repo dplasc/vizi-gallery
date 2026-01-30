@@ -1,0 +1,83 @@
+🚀 **FAZA 18 — ZATVORENA.**
+Idemo to profesionalno zaključiti.
+
+Ispod je **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, **točno po traženom formatu**, bez novih ideja, bez scope creepa.
+
+---
+
+## 1. Chat broj
+
+**Chat #16**
+
+## 2. Naslov chata
+
+**Vizi.hr — FAZA 18: Social links (minimal v1)**
+
+## 3. Faza projekta
+
+**FAZA 18 — Social links (minimal v1)**
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Dodana nova DB tablica **`profile_socials`**
+
+  * `profile_id`, `platform`, `url`, `created_at`
+  * RLS:
+
+    * owner može CRUD nad vlastitim zapisima
+    * public može SELECT (read-only)
+* Implementirana **Server Action**:
+
+  * `saveProfileSocialLink`
+  * upsert po `(profile_id, platform)`
+  * platforme: `linkedin`, `instagram`, `whatsapp`
+* Proširen **authenticated profile edit UI** (`/profile/edit`):
+
+  * nova sekcija **Social links**
+  * 3 input polja (LinkedIn, Instagram, WhatsApp)
+  * sequential save preko Server Actiona
+* Implementiran **public render** na `/${username}`:
+
+  * read-only prikaz social linkova
+  * lucide-react ikone
+  * otvaranje linkova u novom tabu
+  * sekcija se rendera samo ako postoje linkovi
+* Sve promjene:
+
+  * non-breaking
+  * bez novih API ruta
+  * bez Supabase clienta u komponentama
+  * u skladu s App Router & Server Components pravilima
+
+## 5. Što je IZRIČITO odlučeno (zaključano)
+
+* FAZA 18 je **minimal v1**:
+
+  * samo 3 platforme (LinkedIn, Instagram, WhatsApp)
+* Model je **generički** (platform = string)
+* Jedan profil → jedan link po platformi
+* Public sloj je **read-only**
+* Nema reorderinga, CMS-a, icon pickera ni dodatnih platformi
+* FAZA 18 je **zauvijek zaključana**
+
+## 6. Otvorene stavke
+
+* **Nema otvorenih stavki iz FAZE 18**
+
+## 7. Sljedeći dogovoreni korak (jedan)
+
+👉 **FAZA 19 — Proširenje social linkova**
+(dodavanje Facebook / YouTube / TikTok **bez DB migracija**, samo proširenje allowed list + ikone)
+
+## 8. Napomena za nastavak u novom chatu
+
+FAZA 18 je stabilna i zatvorena.
+U novom chatu se može sigurno krenuti u **FAZU 19** bez diranja baze, autha ili postojećeg social link modela.
+
+---
+
+Kad otvoriš novi chat, samo napiši:
+
+👉 **„Nastavljamo Vizi.hr — FAZA 19”**
+
+Ja preuzimam dalje. 💪

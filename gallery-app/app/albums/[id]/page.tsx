@@ -53,7 +53,7 @@ export default async function AlbumDetailPage({ params }: Props) {
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
         <div className="flex items-center gap-4">
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="outline" size="default">
             <Link href="/albums">← Natrag na albume</Link>
           </Button>
         </div>

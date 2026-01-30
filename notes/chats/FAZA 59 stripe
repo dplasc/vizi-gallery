@@ -1,0 +1,164 @@
+U redu. Ispod je **STRUCTURED SUMMARY / HANDOFF** za **ovaj chat**, **čisto, zaključano i spremno za nastavak**.
+
+---
+
+## 1. Chat broj
+
+**Chat #58**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — Monetization & PRO roadmap (pricing, Stripe, admin, galerija, analytics, booking)**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 58 — Produktna i monetizacijska strategija (ZAKLJUČENA)**
+*(implementacija još nije započeta)*
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Analizirali rizik da svi ostanu na FREE planu i zaključili:
+
+  * FREE mora ostati jak (marketing & distribucija)
+  * PRO mora nuditi **status + skaliranje**, ne osnovne funkcije
+* Dogovorili **konačan redoslijed razvoja** bez scope creepa:
+
+  1. Stripe + pricing
+  2. Super admin
+  3. Galerija (PRO core)
+  4. Mini analytics (PRO)
+  5. Mini booking (PRO add-on)
+* Definirali **pricing strategiju**:
+
+  * FREE — 0 €
+  * PRO — **20 € godišnje**
+* Zaključili da je **20 € godišnje realna i zdrava cijena** za HR tržište
+* Razradili **wedding direktorij strategiju**:
+
+  * Wedding direktorij = glavni revenue (50 € godišnje)
+  * Vizi.hr PRO je uključen kao dodatna vrijednost
+* Razjasnili **PRO benefite**:
+
+  * Galerija (100 MB) kao glavni paywall
+  * PRO oznaka / status
+  * Budući prioritet u direktorijima
+  * Kasnije: analytics i mini booking
+* Donijeli jasnu odluku o **storage modelu**:
+
+  * Ne prodajemo MB
+  * Ne radimo “dokupi prostor”
+  * Kasnije eventualno **PRO PLUS paket** (npr. 300 MB), bez UI-ja sada
+* Potvrdili da su:
+
+  * Mini analytics (pregledi, klikovi) **mogući i vrlo vrijedni**
+  * Mini booking (zauzeto/slobodno kalendar) **moguć**, ali tek nakon galerije
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* **FREE ostaje jak** (ništa se ne oduzima)
+* **PRO = 20 € godišnje**
+* **Samo dva plana** u UI-ju: FREE i PRO
+* Galerija (100 MB) je **glavni razlog za plaćanje**
+* **Ne prodajemo MB**, nego pakete/status
+* Wedding direktorij daje **besplatni PRO / PRO PLUS**
+* Redoslijed faza je **zaključan i ne mijenja se**
+* Booking i analytics **NE IDU prije Stripea i galerije**
+
+---
+
+## 6. Otvorene stavke
+
+* Nije započeta implementacija:
+
+  * Stripe integracije
+  * Pricing UI / copy
+  * Super admin ploče
+* Nisu definirani:
+
+  * Stripe proizvodi (Product / Price)
+  * Supabase tablice za pretplate
+  * Admin override i promo kod logika (tehnički)
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **FAZA 59 — STRIPE & PRICING (TEHNIČKI DIZAJN, BEZ KODA)**
+Cilj:
+
+* definirati Stripe setup
+* definirati Supabase strukturu
+* definirati admin & promo logiku
+  **bez implementacije još**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s kontekstom:
+
+> **“MVP public profila je završen i stabilan.
+> Dogovoreni su FREE i PRO (20 € godišnje) planovi, redoslijed faza i PRO benefiti.
+> Nastavljamo s FAZOM 59 — Stripe & pricing (dizajn, bez koda).”**
+
+Kad otvoriš novi chat, samo napiši:
+👉 **“Nastavljamo FAZA 59 — Stripe & pricing.”**
+PWA (web app instalacija na mobitel) je **odlična ideja**, ali nije monetizacijski “core” kao Stripe ili galerija. Zato je stavljamo **točno tamo gdje daje najveći efekt uz najmanji rizik**.
+
+## Gdje ide u redoslijedu (faze)
+
+Dodajemo novu fazu **poslije Stripe + admin**, a prije galerije:
+
+1. Stripe + pricing
+2. Super admin
+   👉 **3) FAZA PWA — “Installable app” (manifest + icons + service worker)**
+3. Galerija (PRO core)
+4. Mini analytics (PRO)
+5. Mini booking (PRO add-on)
+
+Zašto tu?
+
+* PWA povećava “stickiness” (korisnik instalira na mobitel)
+* pomaže konverziji u PRO, ali ne ovisi o galeriji
+* minimalan rizik, mali scope
+
+## U kojem planu (FREE ili PRO)?
+
+**FREE.**
+PWA treba biti dostupna svima, jer:
+
+* to ti diže retention i naviku korištenja
+* ne košta te značajno
+* nije “razlog za plaćanje” (ljudi ne plaćaju PWA)
+
+**PRO** može dobiti *malo bolje*:
+
+* npr. “PRO badge” u app name / theme color (nebitno)
+* ili offline cache za galeriju kasnije (ali to nije v1)
+
+## Što točno znači PWA u v1 (realno)
+
+* “Add to Home Screen” radi
+* ikona i naziv aplikacije
+* splash screen (osnovno)
+* **NE** radimo full offline aplikaciju
+* cache samo osnovnih statičnih asseta (safe)
+
+---
+
+### Sljedeći korak (da ostanemo 1 po 1)
+
+Ovo je sada samo odluka u roadmapu.
+Potvrdi mi jednom riječju:
+
+> **“PWA je FREE i ide odmah nakon Stripe+Admin.”**
+
+Kad potvrdiš, spremam to kao zaključanu stavku u naš plan i nastavljamo u novom chatu s **FAZA 59 — Stripe & pricing (dizajn)**.

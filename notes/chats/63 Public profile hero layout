@@ -1,0 +1,94 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, u točno traženom formatu.
+
+---
+
+## 1. Chat broj
+
+**Chat #63**
+
+---
+
+## 2. Naslov chata (tehnički precizan)
+
+**Public profile hero layout (cover + avatar + owner overlay) – dizajnerska stabilizacija i auth-agnostic ponašanje**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 62 — Public profile UI/UX stabilizacija (premium digitalna vizitka)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Implementiran **cover/header na javnom profilu** kao PRO feature
+* Više iteracija dizajna (full-width, overlap, card-contained) → odbačeni nestabilni patterni
+* Zaključen **premium hero koncept**:
+
+  * cover u kartici
+  * avatar centriran
+  * jasan fokus na osobu, ne na banner
+* Uvedeni **owner-only gumbi** (“Kontrolna ploča”, “Uredi profil”):
+
+  * prikazuju se **samo kad je korisnik ulogiran i vlasnik profila**
+  * renderani kao **overlay gore desno**
+  * **ne smiju utjecati na layout visinu**
+* Uvedena jasna **hijerarhija gumba**:
+
+  * Primary: “Dodaj u kontakte”
+  * Secondary: “Nazovi / Email / Navigacija” (outline-primary)
+  * Utility: “Kopiraj link / WhatsApp / QR” (outline kao prije)
+* Riješen problem da **inkognito vs logged-in** ne smije mijenjati geometriju hero dijela
+* Otkriven **desktop-only bug**:
+
+  * avatar + ime imaju drugačiji spacing u desktop incognito (Opera/Brave)
+  * mobile preview izgleda ispravno
+* Utvrđeno da je uzrok **md:+ responsive spacing u hero sekciji**
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* 🔒 **Owner gumbi se pojavljuju ISKLJUČIVO kad je korisnik ulogiran**
+* 🔒 Owner gumbi su **overlay**, ne sudjeluju u flow layoutu
+* 🔒 Public (inkognito) view i owner view moraju imati **identičan hero layout**
+* 🔒 Hijerarhija gumba je zaključana (primary / secondary / utility)
+* 🔒 Ne vraćamo se više na redizajn hero koncepta (nema novih patterna)
+* 🔒 Svi daljnji fixovi su **isključivo bug-fix / spacing fix**, ne dizajnerske promjene
+
+---
+
+## 6. Otvorene stavke
+
+* ❗ **Desktop incognito hero spacing bug**:
+
+  * avatar i ime su preblizu / vizualno krivi u Opera/Brave desktop
+  * mobile je OK
+  * treba ukloniti md:+ override razmake i izjednačiti desktop s mobile
+* ❗ Nakon toga treba potvrditi da:
+
+  * desktop incognito = desktop logged-in (bez owner gumba)
+  * mobile ostaje nepromijenjen
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+**Unify hero spacing across breakpoints**
+→ ukloniti `md:` specifične razmake u hero sekciji i koristiti jedinstven spacing za desktop i mobile.
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s ovom rečenicom:
+
+**“Nastavljamo Chat #64 – fix desktop incognito hero spacing (avatar + name) da matcha mobile.”**
+
+Radimo:
+
+* 1 korak po poruci
+* samo bug-fix (bez redizajna)
+* gotov Cursor prompt (copy/paste)
+* cilj: **zaključati hero UI jednom zauvijek**

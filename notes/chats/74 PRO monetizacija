@@ -1,0 +1,87 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, u točno traženom formatu.
+
+---
+
+## 1. Chat broj
+
+**Chat #74**
+
+---
+
+## 2. Naslov chata
+
+**PRO monetizacija, pricing, landing copy, build incident + definicija Gallery Storage & Super Admin v1**
+
+---
+
+## 3. Faza projekta
+
+**FAZA: Monetizacija & kontrola (PRO launch + priprema upsella i Super Admina)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Definirali i **zaključali PRO paket** (feature set, copy, UX).
+* Postavljen **pricing: 20 € godišnje (godišnje only)**.
+* Usklađen UI copy s cijenom na:
+
+  * landing page (PRO blok)
+  * dashboard PRO CTA-ovima
+  * helper tekstovima.
+* Dodan **checkout confidence microcopy** (“Sigurno plaćanje · godišnja uplata · bez mjesečnih obveza”).
+* Redizajniran **FREE vs PRO blok**:
+
+  * FREE sada jasno prikazuje sve što korisnik dobiva (avatar, kontakti, društvene mreže…).
+  * PRO je pozicioniran kao **“Sve iz FREE +”**.
+* Implementiran **PRO after-upgrade onboarding callout** u dashboardu.
+* Riješen **Vercel production build incident**:
+
+  * uklonjeni nedozvoljeni `size="sm"` i `variant="link"` iz shadcn Buttona
+  * deploy je uspješno postao zelen.
+* **Definiran Gallery Storage model** (bez koda):
+
+  * PRO = 100 MB
+  * Add-onovi: +200 MB (10 €/god), +500 MB (20 €/god).
+* **Definirana Super Admin v1 specifikacija** (scope, prava, kolone, akcije).
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* PRO cijena: **20 € godišnje**, bez mjesečne opcije (za sada).
+* FREE nema galeriju; galerija je **core PRO feature**.
+* Storage upsell je **sljedeći monetizacijski korak**.
+* Super Admin v1:
+
+  * ruta `/admin`
+  * pristup isključivo preko `auth.users.raw_app_meta_data.role = "super_admin"`
+  * minimalni operativni alat (nema marketinga, nema Stripe operacija).
+* FREE vs PRO copy struktura: **PRO = sve iz FREE + više** (zaključano).
+
+---
+
+## 6. Otvorene stavke
+
+* Još **nije odrađen Korak 25 u kodu**:
+
+  * dodavanje `super_admin` role u Supabase Auth (SQL)
+  * zaštita `/admin` rute u Next.js (server-side guard).
+* Gallery storage još **nije implementiran tehnički** (samo model).
+* Super Admin UI još **nije napravljen** (samo specifikacija).
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+**Korak 25: Postaviti `super_admin` role u Supabase Auth + zaštititi `/admin` rutu (server-side).**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+* U novom chatu **odmah krećemo s Korakom 25** (SQL + `/admin` guard).
+* Ne vraćamo se na PRO/landing copy — to je zaključeno.
+* Fokus dalje: **Super Admin v1 → Gallery storage upsell → dodatni prihod**.
+
+---

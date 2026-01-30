@@ -1,0 +1,103 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, točno po traženom formatu i bez preskakanja.
+
+---
+
+## 1. Chat broj
+
+**Chat #62**
+
+---
+
+## 2. Naslov chata
+
+**Stripe Webhook (Test mode) – Signature verification, middleware exclusion i delivery recovery**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 61 – Stripe PRO pretplate (backend integracija & webhook stabilizacija)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Resetirali Stripe **TEST MODE** webhook setup (krenuli ispočetka).
+* Obrisali / disableali stare i krive webhook destinacije (formulaguard.com).
+* Kreirali **novi test webhook**:
+
+  * `https://www.vizi.hr/api/stripe/webhook`
+  * sluša samo:
+
+    * `checkout.session.completed`
+    * `customer.subscription.updated`
+    * `customer.subscription.deleted`
+* Više puta riješavali **INVALID_SIGNATURE** problem:
+
+  * usklađen `www.vizi.hr` kao primary domain (bez 307 redirecta)
+  * osigurano čitanje **raw body** (`arrayBuffer → Buffer`)
+  * case-insensitive čitanje `Stripe-Signature` headera
+  * izuzet `/api/stripe/webhook` iz **Next.js middlewarea**
+* Otkriven stvarni uzrok:
+
+  * `STRIPE_WEBHOOK_SECRET` u Vercelu je imao **nevidljiv whitespace / newline**
+* Implementiran **finalni fix**:
+
+  * `process.env.STRIPE_WEBHOOK_SECRET?.trim()` u webhook ruti
+* Commitano i deployano:
+
+  * `fix: trim STRIPE_WEBHOOK_SECRET to prevent signature mismatch`
+* Stripe webhook **delivery sada prolazi**:
+
+  * `checkout.session.completed` → **200 OK**
+  * `customer.subscription.updated` → **200 OK**
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Stripe webhook **mora uvijek biti izuzet iz middlewarea**.
+* Webhook **mora koristiti raw body + Buffer**, nikad `req.json()`.
+* `STRIPE_WEBHOOK_SECRET` se **uvijek trimma** u kodu.
+* Test mode se **mora 100% završiti** prije prelaska na live.
+* Ne radimo više “resend starih eventa” za debug – samo **novi eventi**.
+
+---
+
+## 6. Otvorene stavke
+
+* ❌ **I dalje se NE upisuje red u `public.subscriptions`**, iako:
+
+  * Stripe eventi dolaze
+  * webhook vraća 200
+  * `metadata.user_id` postoji u eventu
+* Treba provjeriti **logiku upisa u Supabase**:
+
+  * koji event točno radi `upsert`
+  * da li se `subscription` objekt pravilno dohvaća
+  * da li `service role` klijent i tablica rade bez RLS blokade
+* Mogući problem:
+
+  * upsert se ne izvršava jer je fallback logika previše “tolerantna”
+  * ili se `stripe_subscription_id` ne poklapa s conflict ključem
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **U novom chatu: izolirati i debugirati SAMO Supabase upsert logiku u webhooku**
+(konkretnim `console.log` / privremenim return payloadom da vidimo je li upsert ikad pozvan).
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+* Novi chat započeti s ovom rečenicom:
+  **“Nastavljamo Chat #62 – Stripe webhook radi (200 OK), ali nema upisa u `subscriptions`.”**
+* Ne diramo Stripe više.
+* Fokus je **isključivo backend Supabase insert/upsert**.
+* Radimo opet **1 korak po poruci**.
+
+---
+
+Spreman sam. Kad otvoriš novi chat i zalijepiš ovu napomenu, odmah nastavljamo tamo gdje smo stali.

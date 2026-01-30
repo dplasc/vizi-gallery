@@ -1,0 +1,99 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, čisto i zaključano.
+
+---
+
+## 1. Chat broj
+
+**Chat #39**
+
+---
+
+## 2. Naslov chata
+
+**FAZA 39: Dashboard, uređivanje profila, društvene mreže i logged-in UX**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 39 — Dashboard Core (funkcionalni proizvod nakon login-a)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Implementiran **/dashboard** s server-side auth guardom
+* Nakon login/signup korisnik ima **vidljiv ulaz u kontrolnu ploču**
+* Napravljen **Profile Editor** u dashboardu:
+
+  * osnovni podaci (ime, headline, lokacija, website, opis)
+  * **unos SVIH dogovorenih društvenih mreža**
+  * uključen **Google (recenzije / poslovni profil)**
+  * save + delete (prazno polje briše link)
+* Public profil prikazuje **samo unesene podatke i mreže**
+* Uklonjene hard-kodirane Google sekcije, sve ide iz baze
+* Dodan **logged-in user bar** na public profilu (client-side):
+
+  * Kontrolna ploča
+  * Uredi profil
+  * Odjava (sign out)
+* Riješen problem server-side sessiona prelaskom na **client-side auth check**
+* Uklonjen **dupli “Uredi profil” CTA** (ostaje samo gornji user bar)
+* Sve promjene **commit + push** na `main` (stabilno stanje)
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Dashboard i Profile Editor su **obavezni dio MVP-a**
+* Društvene mreže:
+
+  * prikazuju se **samo ako su unesene**
+  * Google link je **ravnopravan social link**
+* Logged-in UX:
+
+  * korisnik mora **jasno vidjeti da je prijavljen**
+  * mora imati **Uredi profil / Dashboard / Odjava**
+* Ne radimo još:
+
+  * trial logiku
+  * Stripe
+  * template sustav
+  * galeriju slika
+* UI se popravlja **minimalno**, bez scope creepa
+
+---
+
+## 6. Otvorene stavke
+
+* **KRITIČNO:**
+
+  * nakon spremanja profila **ne pojavljuju se social ikone na public profilu**
+  * potrebno utvrditi:
+
+    * jesu li zapisi stvarno spremljeni u `profile_socials`
+    * ili postoji bug u public API-ju / renderu
+* Vizualni kontrast gumba u user baru je djelomično poboljšan, ali još se prati
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **Debug: provjera social linkova u bazi (Supabase SQL)**
+– utvrditi da li su linkovi stvarno spremljeni i odvojiti:
+
+* save/RLS problem
+* ili public render/API problem
+
+(Nakon toga ide **točno jedan fix prompt**.)
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s fokusom na **jedan bug**:
+
+> “Social linkovi su spremljeni, ali se ne prikazuju na public profilu — idemo točno locirati gdje puca.”
+
+Bez novih featurea dok se ovo ne zatvori.
+FAZA 39 se **ne smatra završenom** dok se ovaj bug ne riješi.

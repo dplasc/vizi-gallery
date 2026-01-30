@@ -1,0 +1,90 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** u traženom formatu, precizno i bez dodatnih komentara.
+
+---
+
+## 1. Chat broj
+
+**Chat #76**
+
+---
+
+## 2. Naslov chata
+
+**UX konsolidacija Dashboard / Edit Profile + vraćanje PRO-only sekcija**
+
+---
+
+## 3. Faza projekta
+
+**FAZA: UX stabilizacija i konsolidacija ruta (pre-monetization polish)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Konsolidirali **uloge i svrhe glavnih ruta**:
+
+  * `/dashboard` → status + navigacija (read-only)
+  * `/profile/edit` → jedino mjesto za uređivanje profila i PRO featuree
+  * `/{username}` → javni read-only profil s owner shortcutima
+* Očistili **Dashboard**:
+
+  * uklonjene forme, galerija, header upload i dupli PRO CTA-i
+  * ostali samo: status pretplate, plan/ograničenja, **Uredi profil**, **Pogledaj moj profil**, **Nadogradi na PRO** (FREE only)
+* Uklonjen **ProWelcome** blok s `/app` (smanjeno dupliranje i konfuzija)
+* Popravljeni **nevidljivi CTA tekstovi** (Button asChild / global `a { color }` konflikt)
+* Popravljen **owner navigation**:
+
+  * FREE i PRO vlasnici profila sada vide **Kontrolna ploča** i **Uredi profil** gumbe na javnom profilu
+* Identificiran i ispravljen **kritični bug**:
+
+  * PRO korisnici nisu vidjeli PRO sekcije na `/profile/edit`
+  * vraćene PRO-only sekcije:
+
+    * **Naslovna slika (PRO)** (upload/remove)
+    * **Galerija (PRO)** (placeholder “uskoro”)
+* Potvrđeno ispravno ponašanje za:
+
+  * FREE račun (lock/upgrade, nema pristupa PRO featureima)
+  * PRO račun (pun pristup na `/profile/edit`)
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* **Dashboard je read-only** (status + navigacija) i više se ne koristi za uređivanje
+* **Uredi profil je jedino mjesto** za:
+
+  * uređivanje podataka
+  * PRO featuree (header image, galerija)
+* **Javni profil je read-only**, ali vlasnik uvijek vidi shortcut gumbe
+* PRO featurei su **isključivo vezani uz `/profile/edit`**
+* Ne dodaju se novi featurei dok se UX ne stabilizira
+
+---
+
+## 6. Otvorene stavke
+
+* UX polish:
+
+  * ukloniti dupli “Nadogradi na PRO” na Dashboardu (ostaviti jedan)
+  * mikro-copy dorade (FREE / PRO oznake)
+* Galerija:
+
+  * implementacija stvarnog gallery flowa (ruta, upload, kvote) – kasnija faza
+* Cleanup:
+
+  * eventualno ukloniti neiskorištene komponente (npr. stari ProWelcome file)
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+**UX polish Dashboarda: ukloniti dupli “Nadogradi na PRO” i ostaviti jedan jasan CTA**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Ovaj chat je bio **stresan, ali ključan** – sustav je sada **funkcionalno stabilan i konzistentan**.
+U novom chatu nastavljamo **polako i kontrolirano**, isključivo s malim UX poboljšanjima, bez diranja logike i bez scope creepa.

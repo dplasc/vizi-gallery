@@ -1,0 +1,106 @@
+Evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, čisto i spremno za nastavak 👇
+
+---
+
+## 1. **Chat broj**
+
+**#67**
+
+---
+
+## 2. **Naslov chata (tehnički precizan)**
+
+**PRO subscription source-of-truth fix + onboarding stabilization + dashboard UX alignment**
+
+---
+
+## 3. **Faza projekta**
+
+**FAZA 65 → završetak (Auth, Onboarding, Subscription & Dashboard UX)**
+
+---
+
+## 4. **Što smo konkretno napravili / zaključili**
+
+* Popravljen **onboarding bug** gdje se profil nije kreirao nakon odabira usernamea
+  → implementiran `UPSERT` + verifikacija prije redirecta
+* Stabiliziran **OTP login + onboarding flow** (novi korisnici više ne zapinju)
+* Utvrđeno da je **`vizi_subscriptions` jedini source-of-truth** za PRO/FREE
+* Otkriven i ispravljen **pogrešan PRO owner_id** (bio vezan na krivi profil)
+* Očišćeno stanje u bazi:
+
+  * točno **1 aktivan PRO** (dplasc / auth UID)
+  * nema više cross-account miješanja
+* Implementiran **server-side `isPro()` helper**
+
+  * koristi isključivo `vizi_subscriptions`
+  * `owner_id === auth.users.id`
+* Usklađen UI:
+
+  * PRO korisnik **nigdje ne vidi** “Nadogradi na PRO”
+  * FREE korisnik **svugdje vidi** upgrade CTA
+* Dodan UX improvement:
+
+  * **“Pogledaj moj profil”** gumb u **dashboard headeru**
+  * vodi na `/{username}`
+  * prikazuje se samo ako username postoji
+* Sve promjene:
+
+  * commitane
+  * pushane
+  * deployane na produkciju
+  * ručno potvrđene da rade
+
+---
+
+## 5. **Što je IZRIČITO odlučeno / zaključano**
+
+* **Subscription model (ZA SADA):**
+
+  * 1 user = 1 subscription
+  * `vizi_subscriptions.owner_id = auth.users.id`
+* **NEMA multi-tenant / account modela** u ovoj fazi
+* PRO/FREE se **nikad više ne čita iz `profiles`**
+* `lib/auth/check-pro.ts` je **jedini autoritet** za PRO status
+* Nema fallbacka, nema guessinga
+
+---
+
+## 6. **Otvorene stavke**
+
+* UI prikaz:
+
+  * “PRO aktivan od / do” (datumi pretplate)
+* Daljnje zaključavanje featurea:
+
+  * točno definirati što je FREE, što PRO
+* Super-admin ideje (header oglasi, pozicije, linkovi)
+  *(svjesno odgođeno, nije scope ovog chata)*
+
+---
+
+## 7. **Sljedeći dogovoreni korak (samo jedan)**
+
+👉 **Odabrati i implementirati JEDNO od sljedećeg:**
+
+* prikaz **PRO perioda (start / end)** u dashboardu
+  **ILI**
+* definiranje i tehničko zaključavanje **FREE vs PRO feature seta**
+
+*(korak biraš ti u novom chatu)*
+
+---
+
+## 8. **Napomena za nastavak u novom chatu**
+
+* Projekt je sada u **stabilnom stanju**
+* Auth, onboarding i subscription pipeline su **čisti**
+* Novi chat može krenuti **bez ikakvog duga**
+* Preporuka: započeti s jasnom **FREE/PRO specifikacijom** ili **PRO status UX-om**
+
+---
+
+Kad želiš, samo otvori novi chat i napiši npr.:
+👉 *“Nastavljamo – želim prikaz PRO perioda”*
+ili
+👉 *“Idemo definirati FREE vs PRO feature set”*

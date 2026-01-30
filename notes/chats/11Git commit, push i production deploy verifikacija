@@ -1,0 +1,80 @@
+U redu. Evo **STRUCTURED SUMMARY / HANDOFF** **isključivo za OVAJ chat**, točno po zadanom formatu, bez dodataka.
+
+---
+
+## 1. Chat broj
+
+**Chat #12**
+
+---
+
+## 2. Naslov chata
+
+**Vizi.hr — FAZA 9: Git commit, push i production deploy verifikacija**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 9 — Production verification & deploy**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Provedeno lokalno production testiranje:
+
+  * `npm run build` uspješno prošao
+* Ispravljen path za shared utility:
+
+  * `username.ts` premješten iz `src/lib/` u `lib/` radi usklađenosti s `@/*` aliasom
+* Izvršen Git workflow korak-po-korak:
+
+  * provjera `git status`
+  * `git add .`
+  * commit s porukom
+    `feat: username validation hardening + production ready states`
+  * push na `origin/main`
+* Push uspješno izvršen:
+
+  * commit hash: `694e682`
+  * promjene su na remote repozitoriju
+* Projekt je spreman za produkcijski deploy na Vercelu
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* FAZA 9 je **završena i zaključana**
+* Git workflow se radi:
+
+  * isključivo s jasnim, pojedinačnim naredbama
+  * bez lijepljenja opisnog teksta u terminal
+* Struktura `lib/username.ts` je finalna
+* Ne diraju se više:
+
+  * landing (`/`)
+  * public profile (`/[username]`)
+  * username validacija
+
+---
+
+## 6. Otvorene stavke
+
+**Nema otvorenih stavki u ovoj fazi.**
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+**FAZA 10 — Profile edit (authenticated user flow)**
+(započinje u novom chatu, nakon tvoje potvrde)
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s ovim HANDOFFOM.
+Projekt je stabilan, commitan, pushan i spreman za daljnji razvoj authenticated dijela (FAZA 10).
+
+---

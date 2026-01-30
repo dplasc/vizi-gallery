@@ -1,0 +1,99 @@
+U redu — evo **STRUCTURED SUMMARY / HANDOFF** za ovaj chat, **točno po formatu** i spremno za nastavak.
+
+---
+
+## 1. Chat broj
+
+**Chat #42**
+
+---
+
+## 2. Naslov chata
+
+**Supabase Email OTP / Magic Link — PKCE callback fix + redirect stabilizacija**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 40 — Sigurnost logina (Email OTP / Magic Link)**
+**Status: ZAVRŠENO / STABILNO**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Identificiran glavni problem:
+
+  * Supabase Magic Link završavao na `/` s `#error=access_denied / otp_expired`
+  * Uzrok: PKCE flow nije pravilno obrađen u `/auth/callback`
+* Potvrđeno da:
+
+  * Magic Link email sadrži ispravan `redirect_to=https://www.vizi.hr/auth/callback`
+  * Supabase Auth URL Configuration je ispravno postavljen (Site URL + Redirect URLs)
+* Napravljen **rollback** callback route na stabilnu bazu
+* Implementiran **ispravan PKCE callback flow** u:
+
+  * `app/auth/callback/route.ts`
+* Callback sada:
+
+  * čita `?code=...`
+  * poziva `exchangeCodeForSession(code)`
+  * postavlja auth cookies
+  * redirecta korisnika na `/app`
+* Potvrđeno vizualno:
+
+  * korisnik je uspješno logiran
+  * dashboard (`/app`) se otvara
+* Promjena je:
+
+  * **commitana**
+  * **pushana** na `main`
+  * testirana na **produkciji ([www.vizi.hr](http://www.vizi.hr))**
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* **Login metoda:** Email OTP / Magic Link (passwordless)
+* **Landing nakon logina:** `/app` (Dashboard)
+* **NEMA** auto-redirecta u edit profil
+* `/auth/callback`:
+
+  * koristi PKCE `exchangeCodeForSession`
+  * jedino mjesto za obradu Magic Linka
+* Supabase Auth:
+
+  * Site URL = `https://www.vizi.hr`
+  * Redirect URLs uključuju `/auth/callback`
+* Ova faza je **zaključana** (ne dirati auth bez novog chata)
+
+---
+
+## 6. Otvorene stavke
+
+* Lokalne, **necommitane promjene** u:
+
+  * `app/app/page.tsx` (treba odbaciti prije daljnjeg rada)
+
+---
+
+## 7. Sljedeći dogovoreni korak (SAMO JEDAN)
+
+👉 **Odbaciti lokalne promjene u `app/app/page.tsx` i potvrditi čisti `git status`.**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+U **NOVOM CHATU** započeti točno ovako (copy/paste):
+
+> **“Nastavljamo nakon FAZE 40.
+> OTP / Magic Link login je stabilan i zaključen.
+> Prvi korak: očistiti lokalne promjene i potvrditi clean git state.”**
+
+Tek nakon toga biramo **sljedeću fazu** (UX dashboarda, edit profila, ili onboarding).
+
+---
+
+Ako želiš, u sljedećem chatu mogu i **kratko predložiti redoslijed sljedećih faza**, ali *tek nakon* tog prvog cleanup koraka.

@@ -1,0 +1,119 @@
+U redu. Resetiramo.
+Vraćam se **točno na zadnje STABILNO stanje projekta prije ovog mentalnog kaosa** i radim **STRUCTURED SUMMARY / HANDOFF** kako si tražio.
+**Ne ubacujem ništa o PRO, white-label, WP, VPS itd.**
+
+---
+
+## 1. Chat broj
+
+**Chat #38**
+
+---
+
+## 2. Naslov chata
+
+**FAZA 36–37: MVP zaključavanje i pre-launch sanity check**
+
+---
+
+## 3. Faza projekta
+
+**FAZA 37 — završena (soft-launch readiness)**
+
+---
+
+## 4. Što smo konkretno napravili / zaključili
+
+* Završena **osnovna verzija Vizi.hr digitalne vizitke (MVP)**
+* Implementirano i provjereno:
+
+  * Homepage (jasna poruka “digitalna vizitka – jedan link”)
+  * Public profile (`/username`)
+  * Premium 404 stanje (username not found)
+  * Privacy & Terms stranice
+  * SEO + OG metadata
+  * Share preview (WhatsApp potvrđen)
+* Napravljen **mobile-first UI polish** (razmaci, tipografija, čitljivost)
+* Proveden **sanity check** svih ključnih URL-ova na produkciji
+* Projekt tehnički:
+
+  * stabilan
+  * deployan
+  * bez runtime grešaka
+* Zaključen **MVP scope bez dodatnih featurea**
+
+---
+
+## 5. Što je IZRIČITO odlučeno / zaključano
+
+* Vizi.hr je:
+
+  * **digitalna vizitka**
+  * **jedan link**
+  * **jedan ekran fokusa**
+* Ne dodajemo:
+
+  * CMS
+  * webshop
+  * galerije
+  * booking sustav
+  * kalendare
+  * složene forme
+* MVP je **zaključan** osim:
+
+  * eventualnih **malih, opcionalnih dodataka** koji:
+
+    * ne razbijaju UX
+    * ne uvode kompleksnu logiku
+    * ne zbunjuju korisnika
+
+---
+
+## 6. Otvorene stavke
+
+* NEMA tehničkih bugova otvorenih
+* OTVORENO je samo pitanje:
+
+  * može li se **jednostavna booking opcija** dodati:
+
+    * **bez gradnje booking sustava**
+    * **bez dodatnih tablica i logike**
+    * **na način razumljiv prosječnom korisniku**
+* OTVORENO je pitanje:
+
+  * **tekstualno radno vrijeme** (display-only, bez logike)
+
+---
+
+## 7. Sljedeći dogovoreni korak (samo jedan)
+
+👉 **Analiza mogućnosti: “Jednostavan booking + radno vrijeme (display-only)”**
+
+Cilj sljedećeg koraka:
+
+* procijeniti:
+
+  * koliko je to **tehnički komplicirano**
+  * koliko je to **razumljivo prosječnom korisniku**
+  * može li se napraviti **kao opcionalni dodatak** bez razbijanja MVP-a
+
+👉 **NEMA implementacije dok se to ne procijeni.**
+
+---
+
+## 8. Napomena za nastavak u novom chatu
+
+Novi chat započeti s **hladnom tehničkom procjenom**:
+
+* **što točno znači “booking” u najjednostavnijem obliku**
+* **što znači “radno vrijeme” bez logike**
+* **što korisnik unosi, a što vidi**
+  bez ikakvog širenja scopea i bez novih ideja.
+
+---
+
+Ako želiš, u **novom chatu** možeš započeti s rečenicom:
+
+> **“Krenimo s procjenom jednostavnog booking gumba i radnog vremena – koliko je to stvarno komplicirano.”**
+
+Ja ću tamo preuzeti i voditi dalje, mirno i strukturirano.
