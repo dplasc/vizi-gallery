@@ -6,9 +6,12 @@ export const dynamic = "force-dynamic";
 const GALLERY_SESSION_COOKIE = "gallery_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-function invalidResponse(request: NextRequest, redirectToSso: boolean) {
+function invalidResponse(
+  redirectToSso: boolean,
+  redirectTo: (path: string) => NextResponse
+) {
   if (redirectToSso) {
-    return NextResponse.redirect(new URL("/sso?error=invalid", request.url), 302);
+    return redirectTo("/sso?error=invalid");
   }
   return NextResponse.json(
     { error: "Invalid or expired token" },
@@ -22,6 +25,24 @@ function invalidResponse(request: NextRequest, redirectToSso: boolean) {
  * Verifies token with Vizi, sets gallery_session cookie on success, redirects or returns 401.
  */
 export async function POST(request: NextRequest) {
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    new URL(request.url).protocol.replace(":", "");
+  const host =
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    new URL(request.url).host;
+  const origin = `${proto}://${host}`;
+  function redirectTo(path: string) {
+    return NextResponse.redirect(new URL(path, origin), 302);
+  }
+  console.log("[api/session] redirect origin", {
+    origin,
+    url: request.url,
+    xfHost: request.headers.get("x-forwarded-host"),
+    xfProto: request.headers.get("x-forwarded-proto"),
+  });
+
   const contentType = request.headers.get("content-type") ?? "";
   let token: string | null = null;
 
@@ -32,7 +53,7 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json();
     } catch {
-      return invalidResponse(request, isFormSubmit);
+      return invalidResponse(isFormSubmit, redirectTo);
     }
     token = typeof body?.token === "string" ? body.token.trim() : null;
   } else {
@@ -42,7 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (!token) {
-    return invalidResponse(request, isFormSubmit);
+    return invalidResponse(isFormSubmit, redirectTo);
   }
 
   const viziBase = getViziBaseUrl();
@@ -58,29 +79,26 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("Gallery session verify request failed:", err);
-    return invalidResponse(request, isFormSubmit);
+    return invalidResponse(isFormSubmit, redirectTo);
   }
 
   if (!res.ok) {
-    return invalidResponse(request, isFormSubmit);
+    return invalidResponse(isFormSubmit, redirectTo);
   }
 
   let data: { user_id?: string };
   try {
     data = await res.json();
   } catch {
-    return invalidResponse(request, isFormSubmit);
+    return invalidResponse(isFormSubmit, redirectTo);
   }
 
   const userId = data.user_id;
   if (!userId || typeof userId !== "string") {
-    return invalidResponse(request, isFormSubmit);
+    return invalidResponse(isFormSubmit, redirectTo);
   }
 
-  const redirectResponse = NextResponse.redirect(
-    new URL("/albums", request.url),
-    302
-  );
+  const redirectResponse = redirectTo("/albums");
   redirectResponse.cookies.set(GALLERY_SESSION_COOKIE, userId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
