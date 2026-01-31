@@ -25,23 +25,11 @@ function invalidResponse(
  * Verifies token with Vizi, sets gallery_session cookie on success, redirects or returns 401.
  */
 export async function POST(request: NextRequest) {
-  const proto =
-    request.headers.get("x-forwarded-proto") ??
-    new URL(request.url).protocol.replace(":", "");
-  const host =
-    request.headers.get("x-forwarded-host") ??
-    request.headers.get("host") ??
-    new URL(request.url).host;
-  const origin = `${proto}://${host}`;
+  const origin = request.nextUrl.origin;
   function redirectTo(path: string) {
     return NextResponse.redirect(new URL(path, origin), 302);
   }
-  console.log("[api/session] redirect origin", {
-    origin,
-    url: request.url,
-    xfHost: request.headers.get("x-forwarded-host"),
-    xfProto: request.headers.get("x-forwarded-proto"),
-  });
+  console.log("[api/session] nextUrl.origin", origin);
 
   const contentType = request.headers.get("content-type") ?? "";
   let token: string | null = null;
