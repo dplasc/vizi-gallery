@@ -61,11 +61,17 @@ export async function POST(request: Request) {
           ? body.album_id.trim() || undefined
           : undefined;
 
+    if (!ownerId) {
+      return NextResponse.json(
+        { error: "ownerId is required" },
+        { status: 400 }
+      );
+    }
+
     const sanitized = sanitizeFilename(filename);
-    const prefix = ownerId && albumId
-      ? `owners/${ownerId}/albums/${albumId}`
-      : "temp";
-    const path = `${prefix}/${randomHex()}_${sanitized}`;
+    const path = albumId
+      ? `${ownerId}/albums/${albumId}/${randomHex()}_${sanitized}`
+      : `${ownerId}/temp/${randomHex()}_${sanitized}`;
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
