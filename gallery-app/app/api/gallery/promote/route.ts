@@ -30,9 +30,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    if (!tempPath.startsWith("temp/")) {
+    const expectedTempPrefix = `${ownerId}/temp/`;
+    if (!tempPath.startsWith(expectedTempPrefix)) {
       return NextResponse.json(
-        { error: "tempPath must start with temp/" },
+        { error: "tempPath must start with {ownerId}/temp/" },
         { status: 400 }
       );
     }
