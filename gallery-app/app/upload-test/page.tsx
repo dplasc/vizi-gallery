@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 type Status = "idle" | "uploading" | "success" | "error";
 
@@ -31,7 +32,34 @@ export default function UploadTestPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [clientFetchError, setClientFetchError] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    if (!url || !anonKey) {
+      setAuthChecked(true);
+      return;
+    }
+    const supabase = createClient(url, anonKey);
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (cancelled) return;
+        setUserId(user?.id ?? null);
+      } catch {
+        if (!cancelled) setUserId(null);
+      } finally {
+        if (!cancelled) setAuthChecked(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function setFileAndDebug(file: File | null) {
     setSelectedFile(file);
@@ -47,6 +75,15 @@ export default function UploadTestPage() {
       setStatus("error");
       setErrorMessage("Please select a file.");
       setDebug({ ...emptyDebug, error: { message: "Please select a file." } });
+      return;
+    }
+    if (!userId) {
+      setStatus("error");
+      setErrorMessage("Niste prijavljeni. Za prijenos se morate prijaviti.");
+      setDebug({
+        ...emptyDebug,
+        error: { message: "Niste prijavljeni. Za prijenos se morate prijaviti." },
+      });
       return;
     }
 
@@ -66,6 +103,8 @@ export default function UploadTestPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            ownerId: userId,
+            owner_id: userId,
             album_id: TEST_ALBUM_ID,
             filename: file.name,
             content_type: file.type,
@@ -228,11 +267,17 @@ export default function UploadTestPage() {
         <button
           type="button"
           onClick={handleUpload}
-          disabled={status === "uploading" || !selectedFile}
+          disabled={status === "uploading" || !selectedFile || !userId}
           className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           Upload
         </button>
+
+        {authChecked && !userId && (
+          <p className="text-sm text-amber-600">
+            Niste prijavljeni. Za prijenos se morate prijaviti.
+          </p>
+        )}
 
         {clientFetchError && (
           <p className="text-sm text-red-600">
