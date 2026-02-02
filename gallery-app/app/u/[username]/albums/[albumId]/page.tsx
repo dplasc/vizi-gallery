@@ -110,9 +110,16 @@ export default async function PublicAlbumPage({ params }: Props) {
     };
   });
 
+  const profileUrl = `https://www.vizi.hr/${username}`;
+
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
+        <Button asChild variant="ghost" size="sm" className="text-muted-foreground -ml-2">
+          <Link href={profileUrl} target="_blank" rel="noopener noreferrer">
+            ← Natrag na profil
+          </Link>
+        </Button>
         <Button asChild variant="outline" size="default">
           <Link href={`/u/${encodeURIComponent(rawUsername)}`}>
             ← Natrag na galeriju

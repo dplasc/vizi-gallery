@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -61,9 +62,16 @@ export default async function PublicUserGalleryPage({ params }: Props) {
   if (albumsError) notFound();
   const list = albums ?? [];
 
+  const profileUrl = `https://www.vizi.hr/${username}`;
+
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
+        <Button asChild variant="ghost" size="sm" className="text-muted-foreground -ml-2">
+          <Link href={profileUrl} target="_blank" rel="noopener noreferrer">
+            ← Natrag na profil
+          </Link>
+        </Button>
         <h1 className="text-2xl font-semibold tracking-tight">
           Galerija — @{username}
         </h1>
