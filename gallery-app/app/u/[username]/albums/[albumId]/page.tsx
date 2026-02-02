@@ -115,7 +115,7 @@ export default async function PublicAlbumPage({ params }: Props) {
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
-        <Button asChild variant="ghost" size="sm" className="text-muted-foreground -ml-2">
+        <Button asChild variant="outline" className="text-muted-foreground -ml-2">
           <Link href={profileUrl} target="_blank" rel="noopener noreferrer">
             ← Natrag na profil
           </Link>
