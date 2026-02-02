@@ -14,6 +14,8 @@ import { UploadToAlbumCard } from "@/components/UploadToAlbumCard";
 
 export const dynamic = "force-dynamic";
 
+const GALLERY_BUCKET = "gallery";
+
 function formatDate(iso: string): string {
   try {
     const d = new Date(iso);
@@ -76,10 +78,6 @@ export default async function AlbumDetailPage({ params }: Props) {
     .order("id", { ascending: false });
   const images = imagesData ?? [];
 
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
-  const bucket = "gallery";
-
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
@@ -109,17 +107,18 @@ export default async function AlbumDetailPage({ params }: Props) {
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {images.map((img) => {
-                  const publicUrl = supabaseUrl
-                    ? `${supabaseUrl}/storage/v1/object/public/${bucket}/${img.storage_key_original}`
-                    : "";
+                  const { data } = admin.storage
+                    .from(GALLERY_BUCKET)
+                    .getPublicUrl(img.storage_key_original);
+                  const url = data.publicUrl ?? "";
                   return (
                     <div
                       key={img.id}
                       className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
                     >
-                      {publicUrl ? (
+                      {url ? (
                         <img
-                          src={publicUrl}
+                          src={url}
                           alt=""
                           className="h-full w-full object-cover"
                         />
