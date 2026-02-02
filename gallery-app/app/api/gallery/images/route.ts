@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST: Insert a gallery_images row after a successful storage upload.
- * Same table/columns as album images query: gallery_images (owner_id, album_id, path).
- * Auth: getUser() (same as album page); service role client for insert (same as promote).
+ * Table: gallery_images (owner_id, album_id, storage_key_*, mime_type, dimensions, size_bytes_*).
+ * Auth: getUser(); service role client for insert.
  */
 export async function POST(request: Request) {
   try {
@@ -34,15 +34,30 @@ export async function POST(request: Request) {
       );
     }
 
+    const contentType =
+      typeof body.contentType === "string" ? body.contentType.trim() : null;
+    const sizeBytes =
+      typeof body.sizeBytes === "number" && body.sizeBytes >= 0
+        ? body.sizeBytes
+        : 0;
+
     const admin = createSupabaseAdminClient();
     const { data: row, error: insertError } = await admin
       .from("gallery_images")
       .insert({
         owner_id: user.id,
         album_id: albumId,
-        path: storagePath,
+        storage_key_original: storagePath,
+        storage_key_optimized: storagePath,
+        storage_key_thumb: null,
+        mime_type: contentType ?? "application/octet-stream",
+        width: 0,
+        height: 0,
+        size_bytes_original: sizeBytes,
+        size_bytes_optimized: sizeBytes,
+        size_bytes: sizeBytes,
       })
-      .select("id, owner_id, album_id, path")
+      .select("id, storage_key_original")
       .single();
 
     if (insertError) {

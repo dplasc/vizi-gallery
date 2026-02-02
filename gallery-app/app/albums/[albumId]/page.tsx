@@ -70,7 +70,7 @@ export default async function AlbumDetailPage({ params }: Props) {
 
   const { data: imagesData } = await admin
     .from("gallery_images")
-    .select("id, path")
+    .select("id, storage_key_original")
     .eq("album_id", albumId)
     .eq("owner_id", user.id)
     .order("id", { ascending: false });
@@ -110,7 +110,7 @@ export default async function AlbumDetailPage({ params }: Props) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {images.map((img) => {
                   const publicUrl = supabaseUrl
-                    ? `${supabaseUrl}/storage/v1/object/public/${bucket}/${img.path}`
+                    ? `${supabaseUrl}/storage/v1/object/public/${bucket}/${img.storage_key_original}`
                     : "";
                   return (
                     <div
@@ -125,7 +125,7 @@ export default async function AlbumDetailPage({ params }: Props) {
                         />
                       ) : (
                         <span className="text-muted-foreground text-xs">
-                          {img.path}
+                          {img.storage_key_original}
                         </span>
                       )}
                     </div>
