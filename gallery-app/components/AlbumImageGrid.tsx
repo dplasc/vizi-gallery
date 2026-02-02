@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 export type AlbumImage = {
   id: string;
@@ -21,8 +23,12 @@ type Props = {
 };
 
 export function AlbumImageGrid({ images }: Props) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const count = images.length;
   const current = count > 0 ? images[index] : null;
 
@@ -45,36 +51,124 @@ export function AlbumImageGrid({ images }: Props) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, goPrev, goNext]);
 
+  async function handleConfirmDelete() {
+    const id = deleteTargetId;
+    if (!id || deleting) return;
+
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/gallery/images/${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setDeleteError(data?.error ?? `Error ${res.status}`);
+        setDeleting(false);
+        return;
+      }
+
+      setDeleteTargetId(null);
+      setDeleting(false);
+      router.refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : String(err));
+      setDeleting(false);
+    }
+  }
+
   return (
     <>
       <p className="text-muted-foreground mb-3 text-center text-sm">
         Kliknite na sliku za pregled.
       </p>
+
+      {deleteError && (
+        <div
+          className="mb-3 rounded-md border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm text-red-400"
+          role="alert"
+        >
+          {deleteError}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {images.map((img, i) => (
-          <button
-            key={img.id}
-            type="button"
-            onClick={() => {
-              setIndex(i);
-              setOpen(true);
-            }}
-            className="aspect-square overflow-hidden rounded-md border border-border bg-muted text-left transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            {img.url ? (
-              <img
-                src={img.url}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="text-muted-foreground block p-2 text-xs">
-                {img.key}
-              </span>
-            )}
-          </button>
+          <div key={img.id} className="relative aspect-square">
+            <button
+              type="button"
+              onClick={() => {
+                setIndex(i);
+                setOpen(true);
+              }}
+              className="h-full w-full overflow-hidden rounded-md border border-border bg-muted text-left transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              {img.url ? (
+                <img
+                  src={img.url}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-muted-foreground block p-2 text-xs">
+                  {img.key}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteError(null);
+                setDeleteTargetId(img.id);
+              }}
+              className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded bg-black/50 text-white transition-opacity hover:bg-red-600 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+              aria-label="Obriši sliku"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         ))}
       </div>
+
+      <Dialog
+        open={!!deleteTargetId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTargetId(null);
+            setDeleteError(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Obriši sliku?</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm">
+            Ova akcija je nepovratna.
+          </p>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setDeleteTargetId(null);
+                setDeleteError(null);
+              }}
+              disabled={deleting}
+            >
+              Odustani
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Brišem..." : "Obriši"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-[90vw] sm:max-w-4xl">

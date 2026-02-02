@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { UploadToAlbumCard } from "@/components/UploadToAlbumCard";
 import { AlbumImageGrid } from "@/components/AlbumImageGrid";
+import { AlbumDeleteButton } from "@/components/AlbumDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -96,10 +97,11 @@ export default async function AlbumDetailPage({ params }: Props) {
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <Button asChild variant="outline" size="default">
             <Link href="/albums">← Natrag na albume</Link>
           </Button>
+          <AlbumDeleteButton albumId={albumId} />
         </div>
 
         <Card>
