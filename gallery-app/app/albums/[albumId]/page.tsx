@@ -78,6 +78,15 @@ export default async function AlbumDetailPage({ params }: Props) {
     .order("id", { ascending: false });
   const images = imagesData ?? [];
 
+  const imagesWithUrl = await Promise.all(
+    images.map(async (img) => {
+      const { data } = await admin.storage
+        .from(GALLERY_BUCKET)
+        .createSignedUrl(img.storage_key_original, 60 * 60);
+      return { ...img, url: data?.signedUrl ?? "" };
+    })
+  );
+
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
@@ -106,30 +115,24 @@ export default async function AlbumDetailPage({ params }: Props) {
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {images.map((img) => {
-                  const { data } = admin.storage
-                    .from(GALLERY_BUCKET)
-                    .getPublicUrl(img.storage_key_original);
-                  const url = data.publicUrl ?? "";
-                  return (
-                    <div
-                      key={img.id}
-                      className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
-                    >
-                      {url ? (
-                        <img
-                          src={url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-muted-foreground text-xs">
-                          {img.storage_key_original}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+                {imagesWithUrl.map((img) => (
+                  <div
+                    key={img.id}
+                    className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                  >
+                    {img.url ? (
+                      <img
+                        src={img.url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-muted-foreground text-xs">
+                        {img.storage_key_original}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
