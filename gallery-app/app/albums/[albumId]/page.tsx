@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UploadToAlbumCard } from "@/components/UploadToAlbumCard";
+import { AlbumImageGrid } from "@/components/AlbumImageGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,11 @@ export default async function AlbumDetailPage({ params }: Props) {
       return { ...img, url: data?.signedUrl ?? "" };
     })
   );
+  const imagesWithUrlMapped = imagesWithUrl.map((x) => ({
+    id: x.id,
+    url: x.url,
+    key: x.storage_key_original,
+  }));
 
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
@@ -114,26 +120,7 @@ export default async function AlbumDetailPage({ params }: Props) {
                 Ovdje će uskoro biti slike.
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {imagesWithUrl.map((img) => (
-                  <div
-                    key={img.id}
-                    className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
-                  >
-                    {img.url ? (
-                      <img
-                        src={img.url}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-muted-foreground text-xs">
-                        {img.storage_key_original}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <AlbumImageGrid images={imagesWithUrlMapped} />
             )}
           </CardContent>
         </Card>
