@@ -68,12 +68,13 @@ export default async function AlbumDetailPage({ params }: Props) {
     redirect("/albums");
   }
 
-  const { data: images = [] } = await admin
+  const { data: imagesData } = await admin
     .from("gallery_images")
     .select("id, path")
     .eq("album_id", albumId)
     .eq("owner_id", user.id)
     .order("id", { ascending: false });
+  const images = imagesData ?? [];
 
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
