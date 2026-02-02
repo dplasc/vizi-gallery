@@ -74,25 +74,48 @@ export default async function AlbumDetailPage({ params }: Props) {
 
   const { data: imagesData } = await admin
     .from("gallery_images")
-    .select("id, storage_key_original")
+    .select("id, storage_key_original, storage_key_optimized")
     .eq("album_id", albumId)
     .eq("owner_id", user.id)
     .order("id", { ascending: false });
   const images = imagesData ?? [];
 
-  const imagesWithUrl = await Promise.all(
-    images.map(async (img) => {
-      const { data } = await admin.storage
-        .from(GALLERY_BUCKET)
-        .createSignedUrl(img.storage_key_original, 60 * 60);
-      return { ...img, url: data?.signedUrl ?? "" };
-    })
-  );
-  const imagesWithUrlMapped = imagesWithUrl.map((x) => ({
-    id: x.id,
-    url: x.url,
-    key: x.storage_key_original,
-  }));
+  const allKeys = new Set<string>();
+  for (const img of images) {
+    const orig = img.storage_key_original?.trim();
+    const opt = img.storage_key_optimized?.trim();
+    if (orig) allKeys.add(orig);
+    if (opt) allKeys.add(opt);
+  }
+  const keysToSign = Array.from(allKeys);
+
+  const keyToUrl = new Map<string, string>();
+  if (keysToSign.length > 0) {
+    const { data: signedData } = await admin.storage
+      .from(GALLERY_BUCKET)
+      .createSignedUrls(keysToSign, 60 * 10);
+    if (signedData) {
+      for (const item of signedData) {
+        if (item.path && item.signedUrl) {
+          keyToUrl.set(item.path, item.signedUrl);
+        }
+      }
+    }
+  }
+
+  const imagesWithUrlMapped = images.map((img) => {
+    const thumbKey =
+      (img.storage_key_optimized ?? img.storage_key_original)?.trim() ?? "";
+    const origKey = img.storage_key_original?.trim() ?? "";
+    const url = keyToUrl.get(origKey) ?? "";
+    const thumbnailUrl = thumbKey ? (keyToUrl.get(thumbKey) ?? url) : url;
+    return {
+      id: img.id,
+      url,
+      thumbnailUrl: thumbnailUrl || url,
+      key: origKey || thumbKey,
+    };
+  });
 
   return (
     <main className="flex min-h-screen flex-col items-center p-6">

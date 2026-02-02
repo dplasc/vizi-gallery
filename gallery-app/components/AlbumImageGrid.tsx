@@ -15,6 +15,7 @@ import { Trash2 } from "lucide-react";
 export type AlbumImage = {
   id: string;
   url: string;
+  thumbnailUrl?: string;
   key: string;
 };
 
@@ -102,9 +103,9 @@ export function AlbumImageGrid({ images }: Props) {
               }}
               className="h-full w-full overflow-hidden rounded-md border border-border bg-muted text-left transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
-              {img.url ? (
+              {(img.thumbnailUrl ?? img.url) ? (
                 <img
-                  src={img.url}
+                  src={img.thumbnailUrl ?? img.url}
                   alt=""
                   className="h-full w-full object-cover"
                 />
