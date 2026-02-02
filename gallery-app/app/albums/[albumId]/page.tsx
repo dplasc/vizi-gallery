@@ -68,6 +68,17 @@ export default async function AlbumDetailPage({ params }: Props) {
     redirect("/albums");
   }
 
+  const { data: images = [] } = await admin
+    .from("gallery_images")
+    .select("id, path")
+    .eq("album_id", albumId)
+    .eq("owner_id", user.id)
+    .order("id", { ascending: false });
+
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
+  const bucket = "gallery";
+
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
@@ -90,9 +101,37 @@ export default async function AlbumDetailPage({ params }: Props) {
             </p>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
-              Ovdje će uskoro biti slike.
-            </p>
+            {images.length === 0 ? (
+              <p className="text-muted-foreground rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
+                Ovdje će uskoro biti slike.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {images.map((img) => {
+                  const publicUrl = supabaseUrl
+                    ? `${supabaseUrl}/storage/v1/object/public/${bucket}/${img.path}`
+                    : "";
+                  return (
+                    <div
+                      key={img.id}
+                      className="aspect-square overflow-hidden rounded-md border border-border bg-muted"
+                    >
+                      {publicUrl ? (
+                        <img
+                          src={publicUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-muted-foreground text-xs">
+                          {img.path}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 

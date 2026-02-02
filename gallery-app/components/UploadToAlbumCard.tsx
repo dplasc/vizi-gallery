@@ -6,12 +6,15 @@
  * - Choose file (single file input)
  * - Click Upload
  * - See "Uploading..." then "Uploaded" with path on success
+ * - After PUT: calls POST /api/gallery/images to create DB row, then router.refresh()
  * - Error: 403 + { error: "quota_exceeded" } -> "Quota exceeded"
  * - Other POST errors -> generic status/message
  * - PUT failure -> show PUT status
+ * - DB insert failure after PUT -> show clear error (storage uploaded, album not updated)
  */
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,6 +37,7 @@ type Props = {
 };
 
 export function UploadToAlbumCard({ ownerId, albumId }: Props) {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
@@ -107,11 +111,37 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         return;
       }
 
+      const insertRes = await fetch("/api/gallery/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          albumId,
+          storagePath: path,
+          contentType,
+          sizeBytes: selectedFile.size,
+          originalName: selectedFile.name,
+        }),
+      });
+      const insertData = await insertRes.json().catch(() => ({}));
+
+      if (!insertRes.ok) {
+        setResult("error");
+        setMessage(
+          insertData?.error
+            ? `Slika je učitana, ali nije dodana u album: ${String(insertData.error)}`
+            : "Slika je učitana, ali nije dodana u album. Pokušajte osvježiti stranicu."
+        );
+        setUploadedPath(path);
+        setUploading(false);
+        return;
+      }
+
       setResult("success");
       setUploadedPath(path);
       setMessage("Uploaded");
       setFile(null);
       if (inputRef.current) inputRef.current.value = "";
+      router.refresh();
     } catch (err) {
       setResult("error");
       setMessage(err instanceof Error ? err.message : String(err));
