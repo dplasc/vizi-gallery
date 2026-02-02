@@ -21,9 +21,11 @@ export type AlbumImage = {
 
 type Props = {
   images: AlbumImage[];
+  /** When true, hide delete button and delete dialog (e.g. public gallery view). */
+  readOnly?: boolean;
 };
 
-export function AlbumImageGrid({ images }: Props) {
+export function AlbumImageGrid({ images, readOnly = false }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
@@ -83,7 +85,7 @@ export function AlbumImageGrid({ images }: Props) {
         Kliknite na sliku za pregled.
       </p>
 
-      {deleteError && (
+      {!readOnly && deleteError && (
         <div
           className="mb-3 rounded-md border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm text-red-400"
           role="alert"
@@ -115,22 +117,25 @@ export function AlbumImageGrid({ images }: Props) {
                 </span>
               )}
             </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteError(null);
-                setDeleteTargetId(img.id);
-              }}
-              className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded bg-black/50 text-white transition-opacity hover:bg-red-600 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
-              aria-label="Obriši sliku"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteError(null);
+                  setDeleteTargetId(img.id);
+                }}
+                className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded bg-black/50 text-white transition-opacity hover:bg-red-600 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+                aria-label="Obriši sliku"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </div>
         ))}
       </div>
 
+      {!readOnly && (
       <Dialog
         open={!!deleteTargetId}
         onOpenChange={(open) => {
@@ -170,6 +175,7 @@ export function AlbumImageGrid({ images }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-[90vw] sm:max-w-4xl">
