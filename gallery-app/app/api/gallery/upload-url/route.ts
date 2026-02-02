@@ -68,14 +68,51 @@ export async function POST(request: Request) {
       );
     }
 
-    const sanitized = sanitizeFilename(filename);
-    const path = albumId
-      ? `${ownerId}/albums/${albumId}/${randomHex()}_${sanitized}`
-      : `${ownerId}/temp/${randomHex()}_${sanitized}`;
+    const rawSize =
+      body.fileSize ?? body.file_size ?? body.size_bytes;
+    const sizeNum =
+      typeof rawSize === "number"
+        ? rawSize
+        : typeof rawSize === "string"
+          ? Number(rawSize)
+          : Number.NaN;
+    if (
+      !Number.isFinite(sizeNum) ||
+      sizeNum < 1 ||
+      !Number.isInteger(sizeNum)
+    ) {
+      return NextResponse.json(
+        { error: "fileSize is required" },
+        { status: 400 }
+      );
+    }
+    const fileSize = sizeNum;
 
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+
+    const { data: canUpload, error: canErr } = await supabase.rpc(
+      "can_user_upload",
+      { p_owner_id: ownerId, p_new_file_size: fileSize }
+    );
+    if (canErr) {
+      return NextResponse.json(
+        { error: canErr.message || "Quota check failed" },
+        { status: 500 }
+      );
+    }
+    if (canUpload !== true) {
+      return NextResponse.json(
+        { error: "quota_exceeded" },
+        { status: 403 }
+      );
+    }
+
+    const sanitized = sanitizeFilename(filename);
+    const path = albumId
+      ? `${ownerId}/albums/${albumId}/${randomHex()}_${sanitized}`
+      : `${ownerId}/temp/${randomHex()}_${sanitized}`;
 
     const { data, error } = await supabase.storage
       .from(BUCKET)
