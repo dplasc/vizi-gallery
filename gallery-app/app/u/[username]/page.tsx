@@ -72,14 +72,18 @@ export default async function PublicUserGalleryPage({ params }: Props) {
             ← Natrag na profil
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Galerija — @{username}
-        </h1>
+        <header className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Galerija</h1>
+          <p className="text-muted-foreground text-sm">@{username}</p>
+          <p className="text-muted-foreground text-sm">Fotografije i albumi</p>
+        </header>
 
         {list.length === 0 ? (
           <p className="text-muted-foreground text-center">Nema albuma.</p>
         ) : (
-          <ul className="space-y-4">
+          <>
+            <p className="text-muted-foreground text-sm">Odaberi album</p>
+            <ul className="space-y-4">
             {list.map((album) => (
               <li key={album.id}>
                 <Link href={`/u/${encodeURIComponent(rawUsername)}/albums/${album.id}`}>
@@ -98,7 +102,8 @@ export default async function PublicUserGalleryPage({ params }: Props) {
                 </Link>
               </li>
             ))}
-          </ul>
+            </ul>
+          </>
         )}
       </div>
     </main>

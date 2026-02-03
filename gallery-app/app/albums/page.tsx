@@ -196,10 +196,13 @@ export default async function AlbumsPage({ searchParams }: Props) {
                 imageCountByAlbumId.get(album.id) ?? 0;
               return (
                 <li key={album.id}>
-                  <Link href={`/albums/${album.id}`}>
+                  <Link
+                    href={`/albums/${album.id}`}
+                    className="group block"
+                  >
                     <Card className="transition-colors hover:border-primary/50">
                       <CardHeader className="flex flex-row items-start gap-4 pb-2">
-                        <div className="size-[96px] shrink-0 overflow-hidden rounded-lg bg-muted">
+                        <div className="relative size-[96px] shrink-0 overflow-hidden rounded-lg bg-muted">
                           {coverUrl ? (
                             <img
                               src={coverUrl}
@@ -213,6 +216,12 @@ export default async function AlbumsPage({ searchParams }: Props) {
                               <ImageIcon className="size-10" aria-hidden />
                             </div>
                           )}
+                          <div
+                            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 text-xs font-medium uppercase tracking-wide text-white/95 transition-opacity duration-200 opacity-60 group-hover:opacity-100"
+                            aria-hidden
+                          >
+                            Otvori album
+                          </div>
                         </div>
                         <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex flex-wrap items-center justify-between gap-2">
