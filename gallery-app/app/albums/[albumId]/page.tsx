@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUser } from "@/lib/auth/get-user";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -127,9 +127,29 @@ export default async function AlbumDetailPage({ params }: Props) {
           <AlbumDeleteButton albumId={albumId} />
         </div>
 
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {album.name}
+          </h1>
+          <a
+            href="#upload-area"
+            className={buttonVariants()}
+          >
+            Dodaj slike
+          </a>
+        </div>
+
+        <section id="upload-area" className="space-y-3">
+          <UploadToAlbumCard ownerId={user.id} albumId={albumId} />
+          {images.length === 0 && (
+            <p className="text-muted-foreground text-sm">
+              Odaberi datoteku i klikni Upload da dodaš prvu sliku u album.
+            </p>
+          )}
+        </section>
+
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">{album.name}</CardTitle>
             {album.description && (
               <CardDescription className="text-base">
                 {album.description}
@@ -149,8 +169,6 @@ export default async function AlbumDetailPage({ params }: Props) {
             )}
           </CardContent>
         </Card>
-
-        <UploadToAlbumCard ownerId={user.id} albumId={albumId} />
       </div>
     </main>
   );
