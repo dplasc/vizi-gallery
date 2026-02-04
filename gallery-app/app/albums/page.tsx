@@ -243,7 +243,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
                 <li key={album.id}>
                   <Card className="transition-colors hover:border-primary/50">
                     <CardHeader className="flex flex-row items-start gap-4 pb-2">
-                      <Link
+                      <a
                         href={`/albums/${album.id}`}
                         className="group flex min-w-0 flex-1"
                       >
@@ -289,7 +289,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
                             {formatDate(album.created_at)}
                           </p>
                         </div>
-                      </Link>
+                      </a>
                       <div className="shrink-0">
                         <AlbumDeleteButton albumId={album.id} />
                       </div>
