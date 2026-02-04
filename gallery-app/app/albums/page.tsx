@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createAlbum } from "@/lib/albums";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,6 +64,19 @@ export default async function AlbumsPage({ searchParams }: Props) {
     .select("id, name, description, created_at")
     .eq("owner_id", userId)
     .order("created_at", { ascending: false });
+
+  // Auto-create default album for first-time owners so they can upload immediately (idempotent: re-fetch after insert and use any album that exists).
+  if (!fetchError && albums && albums.length === 0) {
+    await createAlbum(userId, "Galerija", "");
+    const { data: albumsAfter } = await admin
+      .from("gallery_albums")
+      .select("id, name, description, created_at")
+      .eq("owner_id", userId)
+      .order("created_at", { ascending: false });
+    if (albumsAfter && albumsAfter.length > 0) {
+      redirect(`/albums/${albumsAfter[0].id}`);
+    }
+  }
 
   const albumIds = (albums ?? []).map((a) => a.id);
   const coverByAlbumId = new Map<string, string>();

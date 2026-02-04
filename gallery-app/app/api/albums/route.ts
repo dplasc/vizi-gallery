@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createAlbum } from "@/lib/albums";
 
 export const dynamic = "force-dynamic";
 
@@ -62,20 +62,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const admin = createSupabaseAdminClient();
-  const { error } = await admin.from("gallery_albums").insert({
-    owner_id: userId,
-    name,
-    description: description ?? null,
-  });
+  const result = await createAlbum(userId, name, description);
+  const wantsJson = request.headers.get("accept")?.includes("application/json");
 
-  if (error) {
-    console.error("Gallery album insert failed:", error);
+  if (!result) {
+    if (wantsJson) {
+      return NextResponse.json(
+        { error: "create_failed" },
+        { status: 500 }
+      );
+    }
     return NextResponse.redirect(
       new URL("/albums?error=create_failed", request.url),
       302
     );
   }
 
+  if (wantsJson) {
+    return NextResponse.json({ id: result.id }, { status: 201 });
+  }
   return NextResponse.redirect(new URL("/albums", request.url), 302);
 }
