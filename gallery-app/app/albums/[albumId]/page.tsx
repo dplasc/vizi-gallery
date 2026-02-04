@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getUser } from "@/lib/auth/get-user";
+import { getGallerySession } from "@/lib/cookies";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -37,9 +37,9 @@ type Props = {
 
 export default async function AlbumDetailPage({ params }: Props) {
   const { albumId } = await params;
-  const user = await getUser();
+  const userId = await getGallerySession();
 
-  if (!user) {
+  if (!userId) {
     return (
       <main className="flex min-h-screen flex-col items-center p-6">
         <div className="w-full max-w-3xl space-y-8">
@@ -52,7 +52,7 @@ export default async function AlbumDetailPage({ params }: Props) {
             <CardHeader>
               <CardTitle>Upload to album</CardTitle>
               <CardDescription>
-                Sign in to upload to this album.
+                Prijavi se za učitavanje u ovaj album.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -68,7 +68,7 @@ export default async function AlbumDetailPage({ params }: Props) {
     .eq("id", albumId)
     .maybeSingle();
 
-  if (error || !album || album.owner_id !== user.id) {
+  if (error || !album || album.owner_id !== userId) {
     redirect("/albums");
   }
 
@@ -76,7 +76,7 @@ export default async function AlbumDetailPage({ params }: Props) {
     .from("gallery_images")
     .select("id, storage_key_original, storage_key_optimized")
     .eq("album_id", albumId)
-    .eq("owner_id", user.id)
+    .eq("owner_id", userId)
     .order("id", { ascending: false });
   const images = imagesData ?? [];
 
@@ -140,7 +140,7 @@ export default async function AlbumDetailPage({ params }: Props) {
         </div>
 
         <section id="upload-area" className="space-y-3">
-          <UploadToAlbumCard ownerId={user.id} albumId={albumId} />
+          <UploadToAlbumCard ownerId={userId} albumId={albumId} />
           {images.length === 0 && (
             <p className="text-muted-foreground text-sm">
               Odaberi datoteku i klikni Upload da dodaš prvu sliku u album.
