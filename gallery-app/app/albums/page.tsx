@@ -141,10 +141,67 @@ export default async function AlbumsPage({ searchParams }: Props) {
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
 
+  const hasAlbums = albums && albums.length > 0;
+  const addSlikeAlbum = hasAlbums
+    ? albums!.find((a) => a.name === "Galerija") ?? albums![0]
+    : null;
+
+  const newAlbumForm = (
+    <Card>
+      <CardHeader>
+        <CardTitle>Novi album</CardTitle>
+        <CardDescription>Unesi naziv i opcionalno opis.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          action="/api/albums"
+          method="POST"
+          className="flex flex-col gap-4"
+        >
+          <div className="space-y-2">
+            <label htmlFor="album-name" className="text-sm font-medium">
+              Naziv (obavezno)
+            </label>
+            <Input
+              id="album-name"
+              name="name"
+              type="text"
+              placeholder="npr. Ljeto 2025"
+              required
+              maxLength={200}
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="album-description" className="text-sm font-medium">
+              Opis (opcionalno)
+            </label>
+            <Textarea
+              id="album-description"
+              name="description"
+              placeholder="Kratki opis albuma"
+              rows={2}
+              maxLength={2000}
+              className="resize-none"
+            />
+          </div>
+          <Button type="submit">Kreiraj album</Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Moji albumi</h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight">Moji albumi</h1>
+          {addSlikeAlbum && (
+            <Button asChild>
+              <Link href={`/albums/${addSlikeAlbum.id}`}>Dodaj slike</Link>
+            </Button>
+          )}
+        </div>
 
         {errorMessage && (
           <div
@@ -155,48 +212,54 @@ export default async function AlbumsPage({ searchParams }: Props) {
           </div>
         )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Novi album</CardTitle>
-            <CardDescription>Unesi naziv i opcionalno opis.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form
-              action="/api/albums"
-              method="POST"
-              className="flex flex-col gap-4"
-            >
-              <div className="space-y-2">
-                <label htmlFor="album-name" className="text-sm font-medium">
-                  Naziv (obavezno)
-                </label>
-                <Input
-                  id="album-name"
-                  name="name"
-                  type="text"
-                  placeholder="npr. Ljeto 2025"
-                  required
-                  maxLength={200}
-                  autoComplete="off"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="album-description" className="text-sm font-medium">
-                  Opis (opcionalno)
-                </label>
-                <Textarea
-                  id="album-description"
-                  name="description"
-                  placeholder="Kratki opis albuma"
-                  rows={2}
-                  maxLength={2000}
-                  className="resize-none"
-                />
-              </div>
-              <Button type="submit">Kreiraj album</Button>
-            </form>
-          </CardContent>
-        </Card>
+        {hasAlbums ? (
+          <details className="group rounded-lg border bg-card">
+            <summary className="cursor-pointer list-none px-6 py-4 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              Novi album
+            </summary>
+            <div className="border-t px-6 pb-6 pt-4">
+              <p className="text-muted-foreground mb-4 text-sm">
+                Unesi naziv i opcionalno opis.
+              </p>
+              <form
+                action="/api/albums"
+                method="POST"
+                className="flex flex-col gap-4"
+              >
+                <div className="space-y-2">
+                  <label htmlFor="album-name-collapsed" className="text-sm font-medium">
+                    Naziv (obavezno)
+                  </label>
+                  <Input
+                    id="album-name-collapsed"
+                    name="name"
+                    type="text"
+                    placeholder="npr. Ljeto 2025"
+                    required
+                    maxLength={200}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="album-description-collapsed" className="text-sm font-medium">
+                    Opis (opcionalno)
+                  </label>
+                  <Textarea
+                    id="album-description-collapsed"
+                    name="description"
+                    placeholder="Kratki opis albuma"
+                    rows={2}
+                    maxLength={2000}
+                    className="resize-none"
+                  />
+                </div>
+                <Button type="submit">Kreiraj album</Button>
+              </form>
+            </div>
+          </details>
+        ) : (
+          newAlbumForm
+        )}
 
         {fetchError ? (
           <p className="text-muted-foreground text-sm">
