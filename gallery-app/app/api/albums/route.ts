@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
 import { createAlbum } from "@/lib/albums";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +61,24 @@ export async function POST(request: NextRequest) {
       new URL("/albums?error=description_too_long", request.url),
       302
     );
+  }
+
+  // Dedupe: if album with same owner_id and name exists, return existing id (prevents double-submit duplicates).
+  const admin = createSupabaseAdminClient();
+  const { data: existing } = await admin
+    .from("gallery_albums")
+    .select("id")
+    .eq("owner_id", userId)
+    .eq("name", name)
+    .limit(1)
+    .maybeSingle();
+
+  if (existing?.id) {
+    const wantsJson = request.headers.get("accept")?.includes("application/json");
+    if (wantsJson) {
+      return NextResponse.json({ id: existing.id }, { status: 200 });
+    }
+    return NextResponse.redirect(new URL("/albums", request.url), 302);
   }
 
   const result = await createAlbum(userId, name, description);

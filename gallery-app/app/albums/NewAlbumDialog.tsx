@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export function NewAlbumDialog() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -28,6 +31,7 @@ export function NewAlbumDialog() {
           action="/api/albums"
           method="POST"
           className="flex flex-col gap-4"
+          onSubmit={() => setIsSubmitting(true)}
         >
           <div className="space-y-2">
             <label htmlFor="album-name-dialog" className="text-sm font-medium">
@@ -56,7 +60,9 @@ export function NewAlbumDialog() {
               className="resize-none"
             />
           </div>
-          <Button type="submit">Kreiraj album</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Kreiram..." : "Kreiraj album"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

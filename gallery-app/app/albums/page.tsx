@@ -29,6 +29,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   name_too_long: "Naziv je predugačak.",
   description_too_long: "Opis je predugačak.",
   create_failed: "Kreiranje albuma nije uspjelo. Pokušaj ponovno.",
+  auto_create_failed: "Kreiranje defaultnog albuma nije uspjelo. Kreiraj album ručno ispod.",
 };
 
 function formatDate(iso: string): string {
@@ -67,7 +68,9 @@ export default async function AlbumsPage({ searchParams }: Props) {
     .eq("owner_id", userId)
     .order("created_at", { ascending: false });
 
-  // Auto-create default album for first-time owners so they can upload immediately (idempotent: re-fetch after insert and use any album that exists).
+  // Auto-create default album for first-time owners. Redirect immediately—never render empty state.
+  // If create fails, render create form + error (fallback).
+  let attemptedAutoCreateAndFailed = false;
   if (!fetchError && albums && albums.length === 0) {
     await createAlbum(userId, "Galerija", "");
     const { data: albumsAfter } = await admin
@@ -78,6 +81,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
     if (albumsAfter && albumsAfter.length > 0) {
       redirect(`/albums/${albumsAfter[0].id}`);
     }
+    attemptedAutoCreateAndFailed = true;
   }
 
   const albumIds = (albums ?? []).map((a) => a.id);
@@ -136,9 +140,11 @@ export default async function AlbumsPage({ searchParams }: Props) {
   const errorMessage =
     errorCode && ERROR_MESSAGES[errorCode]
       ? ERROR_MESSAGES[errorCode]
-      : errorCode
-        ? "Došlo je do greške."
-        : null;
+      : attemptedAutoCreateAndFailed
+        ? ERROR_MESSAGES.auto_create_failed
+        : errorCode
+          ? "Došlo je do greške."
+          : null;
 
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
@@ -294,6 +300,8 @@ export default async function AlbumsPage({ searchParams }: Props) {
               );
             })}
           </ul>
+        ) : attemptedAutoCreateAndFailed ? (
+          null
         ) : (
           <div className="space-y-4 text-center">
             <p className="text-muted-foreground">Još nemaš albuma.</p>
