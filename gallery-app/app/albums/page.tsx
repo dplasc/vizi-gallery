@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { ImageIcon } from "lucide-react";
 import { NewAlbumDialog } from "./NewAlbumDialog";
+import { AlbumDeleteButton } from "@/components/AlbumDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -234,12 +235,12 @@ export default async function AlbumsPage({ searchParams }: Props) {
                 imageCountByAlbumId.get(album.id) ?? 0;
               return (
                 <li key={album.id}>
-                  <Link
-                    href={`/albums/${album.id}`}
-                    className="group block"
-                  >
-                    <Card className="transition-colors hover:border-primary/50">
-                      <CardHeader className="flex flex-row items-start gap-4 pb-2">
+                  <Card className="transition-colors hover:border-primary/50">
+                    <CardHeader className="flex flex-row items-start gap-4 pb-2">
+                      <Link
+                        href={`/albums/${album.id}`}
+                        className="group flex min-w-0 flex-1"
+                      >
                         <div className="relative size-[96px] shrink-0 overflow-hidden rounded-lg bg-muted">
                           {coverUrl ? (
                             <img
@@ -282,10 +283,13 @@ export default async function AlbumsPage({ searchParams }: Props) {
                             {formatDate(album.created_at)}
                           </p>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0" />
-                    </Card>
-                  </Link>
+                      </Link>
+                      <div className="shrink-0">
+                        <AlbumDeleteButton albumId={album.id} />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0" />
+                  </Card>
                 </li>
               );
             })}
