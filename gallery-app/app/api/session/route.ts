@@ -87,12 +87,14 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectResponse = redirectTo("/albums");
+  const isProduction = process.env.NODE_ENV === "production";
   redirectResponse.cookies.set(GALLERY_SESSION_COOKIE, userId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     sameSite: "lax",
-    maxAge: MAX_AGE,
     path: "/",
+    domain: isProduction ? ".vizi.hr" : undefined,
+    maxAge: MAX_AGE,
   });
 
   return redirectResponse;

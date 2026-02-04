@@ -84,15 +84,17 @@ export async function POST(request: NextRequest) {
   const result = await createAlbum(userId, name, description);
   const wantsJson = request.headers.get("accept")?.includes("application/json");
 
-  if (!result) {
+  if (!result.ok) {
+    const reason = result.error.slice(0, 120).trim();
+    const reasonParam = reason ? `&reason=${encodeURIComponent(reason)}` : "";
     if (wantsJson) {
       return NextResponse.json(
-        { error: "create_failed" },
+        { error: "create_failed", reason: result.error },
         { status: 500 }
       );
     }
     return NextResponse.redirect(
-      new URL("/albums?error=create_failed", request.url),
+      new URL(`/albums?error=create_failed${reasonParam}`, request.url),
       302
     );
   }

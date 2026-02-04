@@ -49,8 +49,10 @@ function imageCountLabel(count: number): string {
   return count === 1 ? "1 slika" : `${count} slika`;
 }
 
+const REASON_MAX_LENGTH = 120;
+
 type Props = {
-  searchParams: Promise<{ error?: string; max?: string }>;
+  searchParams: Promise<{ error?: string; max?: string; reason?: string }>;
 };
 
 export default async function AlbumsPage({ searchParams }: Props) {
@@ -69,19 +71,25 @@ export default async function AlbumsPage({ searchParams }: Props) {
     .order("created_at", { ascending: false });
 
   // Auto-create default album for first-time owners. Redirect immediately—never render empty state.
-  // If create fails, render create form + error (fallback).
-  let attemptedAutoCreateAndFailed = false;
+  // If create fails, redirect with reason so UI can show the real error.
   if (!fetchError && albums && albums.length === 0) {
-    await createAlbum(userId, "Galerija", "");
-    const { data: albumsAfter } = await admin
-      .from("gallery_albums")
-      .select("id, name, description, created_at")
-      .eq("owner_id", userId)
-      .order("created_at", { ascending: false });
-    if (albumsAfter && albumsAfter.length > 0) {
-      redirect(`/albums/${albumsAfter[0].id}`);
+    const createResult = await createAlbum(userId, "Galerija", "");
+    if (createResult.ok) {
+      const { data: albumsAfter } = await admin
+        .from("gallery_albums")
+        .select("id, name, description, created_at")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false });
+      if (albumsAfter && albumsAfter.length > 0) {
+        redirect(`/albums/${albumsAfter[0].id}`);
+      }
     }
-    attemptedAutoCreateAndFailed = true;
+    const shortError = createResult.ok
+      ? ""
+      : createResult.error.slice(0, REASON_MAX_LENGTH).trim();
+    redirect(
+      `/albums?error=auto_create_failed${shortError ? `&reason=${encodeURIComponent(shortError)}` : ""}`
+    );
   }
 
   const albumIds = (albums ?? []).map((a) => a.id);
@@ -137,14 +145,26 @@ export default async function AlbumsPage({ searchParams }: Props) {
 
   const params = await searchParams;
   const errorCode = params.error?.trim();
+  const reasonParam = params.reason?.trim();
+  const isAutoCreateFailed = errorCode === "auto_create_failed";
+  const isCreateFailed = errorCode === "create_failed";
+  const autoCreateMessage = reasonParam
+    ? `Kreiranje defaultnog albuma nije uspjelo: ${reasonParam}. Kreiraj album ručno ispod.`
+    : ERROR_MESSAGES.auto_create_failed;
+  const createFailedMessage =
+    reasonParam && isCreateFailed
+      ? `${ERROR_MESSAGES.create_failed} (${reasonParam})`
+      : ERROR_MESSAGES.create_failed;
   const errorMessage =
-    errorCode && ERROR_MESSAGES[errorCode]
-      ? ERROR_MESSAGES[errorCode]
-      : attemptedAutoCreateAndFailed
-        ? ERROR_MESSAGES.auto_create_failed
-        : errorCode
-          ? "Došlo je do greške."
-          : null;
+    isAutoCreateFailed
+      ? autoCreateMessage
+      : isCreateFailed
+        ? createFailedMessage
+        : errorCode && ERROR_MESSAGES[errorCode]
+          ? ERROR_MESSAGES[errorCode]
+          : errorCode
+            ? "Došlo je do greške."
+            : null;
 
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
@@ -300,7 +320,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
               );
             })}
           </ul>
-        ) : attemptedAutoCreateAndFailed ? (
+        ) : isAutoCreateFailed ? (
           null
         ) : (
           <div className="space-y-4 text-center">
