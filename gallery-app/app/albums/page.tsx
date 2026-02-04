@@ -4,7 +4,7 @@ import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createAlbum } from "@/lib/albums";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ImageIcon } from "lucide-react";
+import { NewAlbumDialog } from "./NewAlbumDialog";
 
 export const dynamic = "force-dynamic";
 
@@ -197,9 +198,12 @@ export default async function AlbumsPage({ searchParams }: Props) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Moji albumi</h1>
           {addSlikeAlbum && (
-            <Button asChild>
-              <Link href={`/albums/${addSlikeAlbum.id}`}>Dodaj slike</Link>
-            </Button>
+            <a
+              href={`/albums/${addSlikeAlbum.id}`}
+              className={buttonVariants()}
+            >
+              Dodaj slike
+            </a>
           )}
         </div>
 
@@ -213,50 +217,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
         )}
 
         {hasAlbums ? (
-          <details className="group rounded-lg border bg-card">
-            <summary className="cursor-pointer list-none px-6 py-4 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              Novi album
-            </summary>
-            <div className="border-t px-6 pb-6 pt-4">
-              <p className="text-muted-foreground mb-4 text-sm">
-                Unesi naziv i opcionalno opis.
-              </p>
-              <form
-                action="/api/albums"
-                method="POST"
-                className="flex flex-col gap-4"
-              >
-                <div className="space-y-2">
-                  <label htmlFor="album-name-collapsed" className="text-sm font-medium">
-                    Naziv (obavezno)
-                  </label>
-                  <Input
-                    id="album-name-collapsed"
-                    name="name"
-                    type="text"
-                    placeholder="npr. Ljeto 2025"
-                    required
-                    maxLength={200}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="album-description-collapsed" className="text-sm font-medium">
-                    Opis (opcionalno)
-                  </label>
-                  <Textarea
-                    id="album-description-collapsed"
-                    name="description"
-                    placeholder="Kratki opis albuma"
-                    rows={2}
-                    maxLength={2000}
-                    className="resize-none"
-                  />
-                </div>
-                <Button type="submit">Kreiraj album</Button>
-              </form>
-            </div>
-          </details>
+          <NewAlbumDialog />
         ) : (
           newAlbumForm
         )}
