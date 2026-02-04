@@ -242,10 +242,10 @@ export default async function AlbumsPage({ searchParams }: Props) {
               return (
                 <li key={album.id}>
                   <Card className="transition-colors hover:border-primary/50">
-                    <CardHeader className="flex flex-row items-start gap-4 pb-2">
+                    <CardHeader className="relative flex flex-row items-start gap-4 pb-2">
                       <a
                         href={`/albums/${album.id}`}
-                        className="group flex min-w-0 flex-1"
+                        className="relative z-10 group flex min-w-0 flex-1"
                       >
                         <div className="relative size-[96px] shrink-0 overflow-hidden rounded-lg bg-muted">
                           {coverUrl ? (
