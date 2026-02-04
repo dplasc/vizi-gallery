@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUser } from "@/lib/auth/get-user";
+import { getGallerySession } from "@/lib/cookies";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +11,9 @@ export async function DELETE(
   { params }: { params: Promise<{ albumId: string }> }
 ) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userId = await getGallerySession();
+    if (!userId) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
     const { albumId } = await params;
@@ -40,8 +40,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Album not found" }, { status: 404 });
     }
 
-    if (album.owner_id !== user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (album.owner_id !== userId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
     const { data: images, error: imagesError } = await admin

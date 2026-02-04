@@ -32,7 +32,13 @@ export function AlbumDeleteButton({ albumId }: Props) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data?.error ?? `Error ${res.status}`);
+        const message =
+          res.status === 401
+            ? "Nisi prijavljen."
+            : res.status === 403
+              ? "Nemaš pravo brisanja ovog albuma."
+              : data?.error ?? `Greška ${res.status}`;
+        setError(message);
         setDeleting(false);
         return;
       }
