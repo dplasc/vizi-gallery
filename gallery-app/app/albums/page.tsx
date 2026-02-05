@@ -64,6 +64,14 @@ export default async function AlbumsPage({ searchParams }: Props) {
   }
 
   const admin = createSupabaseAdminClient();
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("username")
+    .eq("id", userId)
+    .maybeSingle();
+  const username = profile?.username?.trim() ?? null;
+
   const { data: albums, error: fetchError } = await admin
     .from("gallery_albums")
     .select("id, name, description, created_at")
@@ -222,6 +230,15 @@ export default async function AlbumsPage({ searchParams }: Props) {
   return (
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
+        {username && (
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <Button asChild variant="outline" size="default">
+              <Link href={`${getViziBaseUrl()}/${username}`}>
+                ← Natrag na profil
+              </Link>
+            </Button>
+          </div>
+        )}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">Moji albumi</h1>
           {addSlikeAlbum && (
