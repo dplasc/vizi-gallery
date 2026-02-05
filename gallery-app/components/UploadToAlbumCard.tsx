@@ -1,16 +1,10 @@
 "use client";
 
 /*
- * Checklist:
- * - Open album page while signed in
- * - Choose file (single file input)
- * - Click Upload
- * - See "Uploading..." then "Uploaded" with path on success
- * - After PUT: calls POST /api/gallery/images to create DB row, then router.refresh()
- * - Error: 403 + { error: "quota_exceeded" } -> "Quota exceeded"
- * - Other POST errors -> generic status/message
- * - PUT failure -> show PUT status
- * - DB insert failure after PUT -> show clear error (storage uploaded, album not updated)
+ * Flow: upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> router.refresh().
+ * - upload-url called without albumId so path is ownerId/temp/... (promote requires tempPath).
+ * - Promote requires gallery_session (cookies sent by same-origin fetch).
+ * - 403 quota_exceeded -> "Quota exceeded"; promote failure -> show response error.
  */
 
 import { useState, useRef } from "react";
@@ -60,12 +54,12 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         : "application/octet-stream";
 
     try {
+      // Request temp path (no albumId) so promote can copy temp -> album and insert into gallery_images
       const postRes = await fetch("/api/gallery/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ownerId,
-          albumId,
           filename: selectedFile.name,
           fileSize: selectedFile.size,
           contentType,
@@ -111,25 +105,20 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         return;
       }
 
-      const insertRes = await fetch("/api/gallery/images", {
+      // Promote: copy temp -> album, insert into gallery_images (requires gallery_session; cookies sent by default)
+      const promoteRes = await fetch("/api/gallery/promote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          albumId,
-          storagePath: path,
-          contentType,
-          sizeBytes: selectedFile.size,
-          originalName: selectedFile.name,
-        }),
+        body: JSON.stringify({ tempPath: path, albumId }),
       });
-      const insertData = await insertRes.json().catch(() => ({}));
+      const promoteData = await promoteRes.json().catch(() => ({}));
 
-      if (!insertRes.ok) {
+      if (!promoteRes.ok) {
         setResult("error");
         setMessage(
-          insertData?.error
-            ? `Slika je učitana, ali nije dodana u album: ${String(insertData.error)}`
-            : "Slika je učitana, ali nije dodana u album. Pokušajte osvježiti stranicu."
+          promoteData?.error != null
+            ? String(promoteData.error)
+            : `Promote failed: ${promoteRes.status}`
         );
         setUploadedPath(path);
         setUploading(false);
@@ -137,8 +126,12 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       }
 
       setResult("success");
-      setUploadedPath(path);
-      setMessage("Uploaded");
+      setUploadedPath(
+        typeof promoteData?.finalPath === "string"
+          ? promoteData.finalPath
+          : path
+      );
+      setMessage("Dodano u album");
       setFile(null);
       if (inputRef.current) inputRef.current.value = "";
       router.refresh();
