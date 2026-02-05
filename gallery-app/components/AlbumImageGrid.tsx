@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -26,14 +25,15 @@ type Props = {
 };
 
 export function AlbumImageGrid({ images, readOnly = false }: Props) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const count = images.length;
-  const current = count > 0 ? images[index] : null;
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const visibleImages = images.filter((img) => !hiddenIds.has(img.id));
+  const count = visibleImages.length;
+  const current = count > 0 ? visibleImages[index] : null;
 
   const goPrev = useCallback(() => {
     setIndex((i) => (i <= 0 ? count - 1 : i - 1));
@@ -41,6 +41,11 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
 
   const goNext = useCallback(() => {
     setIndex((i) => (i >= count - 1 ? 0 : i + 1));
+  }, [count]);
+
+  useEffect(() => {
+    setIndex((i) => Math.min(i, Math.max(0, count - 1)));
+    if (count === 0) setOpen(false);
   }, [count]);
 
   useEffect(() => {
@@ -61,7 +66,11 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
     setDeleteError(null);
     setDeleting(true);
     try {
-      const res = await fetch(`/api/gallery/images/${id}`, { method: "DELETE" });
+      const res = await fetch("/api/gallery/images/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageId: id }),
+      });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
@@ -72,7 +81,7 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
 
       setDeleteTargetId(null);
       setDeleting(false);
-      router.refresh();
+      setHiddenIds((prev) => new Set(prev).add(id));
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : String(err));
       setDeleting(false);
@@ -95,7 +104,7 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
       )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {images.map((img, i) => (
+        {visibleImages.map((img, i) => (
           <div key={img.id} className="relative aspect-square">
             <button
               type="button"
