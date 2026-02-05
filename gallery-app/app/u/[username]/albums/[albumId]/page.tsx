@@ -67,7 +67,7 @@ export default async function PublicAlbumPage({ params }: Props) {
 
   const { data: imagesData } = await admin
     .from("gallery_images")
-    .select("id, storage_key_original, storage_key_optimized")
+    .select("id, storage_key_original, storage_key_optimized, storage_key_thumb")
     .eq("album_id", albumId.trim())
     .eq("owner_id", ownerId)
     .order("id", { ascending: false });
@@ -77,8 +77,10 @@ export default async function PublicAlbumPage({ params }: Props) {
   for (const img of images) {
     const orig = img.storage_key_original?.trim();
     const opt = img.storage_key_optimized?.trim();
+    const thumb = img.storage_key_thumb?.trim();
     if (orig) allKeys.add(orig);
     if (opt) allKeys.add(opt);
+    if (thumb) allKeys.add(thumb);
   }
   const keysToSign = Array.from(allKeys);
 
@@ -98,9 +100,14 @@ export default async function PublicAlbumPage({ params }: Props) {
 
   const imagesWithUrlMapped = images.map((img) => {
     const thumbKey =
-      (img.storage_key_optimized ?? img.storage_key_original)?.trim() ?? "";
+      img.storage_key_thumb?.trim() ||
+      (img.storage_key_optimized ?? img.storage_key_original)?.trim() ||
+      "";
     const origKey = img.storage_key_original?.trim() ?? "";
-    const url = keyToUrl.get(origKey) ?? "";
+    const url =
+      keyToUrl.get(img.storage_key_optimized?.trim() ?? origKey) ??
+      keyToUrl.get(origKey) ??
+      "";
     const thumbnailUrl = thumbKey ? (keyToUrl.get(thumbKey) ?? url) : url;
     return {
       id: img.id,

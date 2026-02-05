@@ -109,10 +109,32 @@ export async function POST(request: Request) {
       );
     }
 
-    const sanitized = sanitizeFilename(filename);
-    const path = albumId
-      ? `${ownerId}/albums/${albumId}/${randomHex()}_${sanitized}`
-      : `${ownerId}/temp/${randomHex()}_${sanitized}`;
+    const customPath =
+      typeof body.customPath === "string" ? body.customPath.trim() : "";
+    const path: string =
+      customPath !== ""
+        ? (() => {
+            if (
+              !customPath.startsWith(ownerId + "/") ||
+              customPath.includes("..")
+            ) {
+              return "";
+            }
+            return customPath;
+          })()
+        : (() => {
+            const sanitized = sanitizeFilename(filename);
+            return albumId
+              ? `${ownerId}/albums/${albumId}/${randomHex()}_${sanitized}`
+              : `${ownerId}/temp/${randomHex()}_${sanitized}`;
+          })();
+
+    if (path === "") {
+      return NextResponse.json(
+        { error: "Invalid path (customPath must start with ownerId/ and contain no '..')" },
+        { status: 400 }
+      );
+    }
 
     const { data, error } = await supabase.storage
       .from(BUCKET)

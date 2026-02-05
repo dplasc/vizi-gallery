@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const admin = createSupabaseAdminClient();
     const { data: image, error: fetchError } = await admin
       .from("gallery_images")
-      .select("id, owner_id, storage_key_original, storage_key_optimized")
+      .select("id, owner_id, storage_key_original, storage_key_optimized, storage_key_thumb")
       .eq("id", imageId)
       .maybeSingle();
 
@@ -75,6 +75,9 @@ export async function POST(request: Request) {
       image.storage_key_optimized.trim() !== image.storage_key_original?.trim()
     ) {
       keysToRemove.push(image.storage_key_optimized.trim());
+    }
+    if (image.storage_key_thumb?.trim()) {
+      keysToRemove.push(image.storage_key_thumb.trim());
     }
 
     if (keysToRemove.length > 0) {

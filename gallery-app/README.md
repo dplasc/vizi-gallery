@@ -29,3 +29,10 @@ Open http://localhost:3001
 ## Config
 
 Copy `.env.example` to `.env.local` and set `VIZI_BASE_URL` if needed (default: https://www.vizi.hr).
+
+## Thumbnail pipeline (verification)
+
+- **Upload:** Use a large phone photo (e.g. 4–12 MB). In the album upload card, click Upload; wait for "Optimizing image…" then "Dodano u album".
+- **DB:** In Supabase `gallery_images`, confirm the new row has `storage_key_thumb` set to a path like `{ownerId}/{albumId}/{imageId}_thumb.jpg`.
+- **Grid:** Open the album; in DevTools → Network, filter by "Img" or image requests. Grid tiles should load small thumb URLs (~250 KB or less); opening a image in the lightbox loads the full optimized/original URL.
+- **Fallback:** Images uploaded before this feature (or if thumb generation/upload failed) have `storage_key_thumb` null; the grid falls back to optimized then original for the tile.

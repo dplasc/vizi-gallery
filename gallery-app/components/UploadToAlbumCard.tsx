@@ -1,8 +1,9 @@
 "use client";
 
 /*
- * Flow: optimize (client) -> upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> router.refresh().
+ * Flow: optimize (client) -> upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> [upload thumb, update storage_key_thumb] -> router.refresh().
  * - upload-url called without albumId so path is ownerId/temp/... (promote requires tempPath).
+ * - Thumb: after promote, upload to ownerId/albumId/<imageId>_thumb.jpg via customPath; then update row storage_key_thumb (client Supabase, RLS).
  * - Promote requires gallery_session (cookies sent by same-origin fetch).
  * - 403 quota_exceeded -> "Quota exceeded"; promote failure -> show response error.
  */
@@ -18,7 +19,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { prepareUploadImage } from "@/lib/images/prepareUploadImage";
+import { prepareUploadImages } from "@/lib/images/prepareUploadImage";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type UploadUrlApiResponse = {
   signedUrl: string;
@@ -33,6 +35,8 @@ type Props = {
 
 const UPLOAD_OPTIMIZE_MAX_SIDE = 2000;
 const UPLOAD_OPTIMIZE_MAX_BYTES = 5 * 1024 * 1024;
+const THUMB_MAX_SIDE = 400;
+const THUMB_MAX_BYTES = 250 * 1024;
 
 export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   const router = useRouter();
@@ -40,6 +44,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   const [uploading, setUploading] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
   const [optimizationSkippedToast, setOptimizationSkippedToast] = useState<string | null>(null);
+  const [thumbFailedToast, setThumbFailedToast] = useState<string | null>(null);
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
@@ -53,18 +58,24 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
     setMessage(null);
     setUploadedPath(null);
     setOptimizationSkippedToast(null);
+    setThumbFailedToast(null);
     setOptimizing(true);
 
     let fileToUpload: File;
+    let thumbFile: File | null = null;
     try {
-      fileToUpload = await prepareUploadImage(selectedFile, {
+      const { optimizedFile, thumbFile: t } = await prepareUploadImages(selectedFile, {
         maxSide: UPLOAD_OPTIMIZE_MAX_SIDE,
         maxBytes: UPLOAD_OPTIMIZE_MAX_BYTES,
+        thumbMaxSide: THUMB_MAX_SIDE,
+        thumbMaxBytes: THUMB_MAX_BYTES,
       });
+      fileToUpload = optimizedFile;
       const isImage = (selectedFile.type ?? "").trim().toLowerCase().startsWith("image/");
       if (isImage && fileToUpload === selectedFile) {
         setOptimizationSkippedToast("Image could not be optimized; uploading original.");
       }
+      if (t.size < fileToUpload.size) thumbFile = t;
     } finally {
       setOptimizing(false);
     }
@@ -153,6 +164,58 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         return;
       }
 
+      const imageId =
+        typeof promoteData?.imageId === "string"
+          ? promoteData.imageId.trim()
+          : null;
+      const thumbStoragePath =
+        imageId && thumbFile
+          ? `${ownerId}/${albumId}/${imageId}_thumb.jpg`
+          : null;
+
+      if (thumbStoragePath && thumbFile) {
+        try {
+          const thumbPostRes = await fetch("/api/gallery/upload-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ownerId,
+              filename: thumbFile.name,
+              fileSize: thumbFile.size,
+              contentType: "image/jpeg",
+              customPath: thumbStoragePath,
+            }),
+          });
+          const thumbPostData = await thumbPostRes.json().catch(() => ({}));
+          if (
+            thumbPostRes.ok &&
+            thumbPostData?.signedUrl &&
+            thumbPostData?.path
+          ) {
+            const thumbPutRes = await fetch(thumbPostData.signedUrl, {
+              method: "PUT",
+              headers: { "Content-Type": "image/jpeg" },
+              body: thumbFile,
+            });
+            if (thumbPutRes.status === 200 || thumbPutRes.status === 201) {
+              const supabase = createSupabaseBrowserClient();
+              const { error: updateErr } = await supabase
+                .from("gallery_images")
+                .update({ storage_key_thumb: thumbStoragePath })
+                .eq("id", imageId)
+                .eq("owner_id", ownerId);
+              if (updateErr) setThumbFailedToast("Thumbnail saved but not linked; image was added.");
+            } else {
+              setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
+            }
+          } else {
+            setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
+          }
+        } catch {
+          setThumbFailedToast("Thumbnail could not be saved; image was added.");
+        }
+      }
+
       setResult("success");
       setUploadedPath(
         typeof promoteData?.finalPath === "string"
@@ -183,6 +246,11 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         {optimizationSkippedToast && (
           <Alert className="border-amber-500/50 bg-amber-500/10">
             <AlertDescription>{optimizationSkippedToast}</AlertDescription>
+          </Alert>
+        )}
+        {thumbFailedToast && (
+          <Alert className="border-amber-500/50 bg-amber-500/10">
+            <AlertDescription>{thumbFailedToast}</AlertDescription>
           </Alert>
         )}
         <div className="flex flex-wrap items-center gap-2">
