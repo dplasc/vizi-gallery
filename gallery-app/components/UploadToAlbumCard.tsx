@@ -199,12 +199,18 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
             });
             if (thumbPutRes.status === 200 || thumbPutRes.status === 201) {
               const supabase = createSupabaseBrowserClient();
-              const { error: updateErr } = await supabase
+              console.log("THUMB DEBUG - attempting update", { imageId, ownerId, thumbStoragePath });
+              const { error } = await supabase
                 .from("gallery_images")
                 .update({ storage_key_thumb: thumbStoragePath })
                 .eq("id", imageId)
                 .eq("owner_id", ownerId);
-              if (updateErr) setThumbFailedToast("Thumbnail saved but not linked; image was added.");
+              if (error) {
+                console.error("THUMB DEBUG - update failed", error);
+              } else {
+                console.log("THUMB DEBUG - update success");
+              }
+              if (error) setThumbFailedToast("Thumbnail saved but not linked; image was added.");
             } else {
               setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
             }
