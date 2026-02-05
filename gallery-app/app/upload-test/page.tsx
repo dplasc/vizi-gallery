@@ -2,8 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { prepareUploadImage } from "@/lib/images/prepareUploadImage";
 
-type Status = "idle" | "uploading" | "success" | "error";
+type Status = "idle" | "optimizing" | "uploading" | "success" | "error";
+
+const UPLOAD_OPTIMIZE_MAX_SIDE = 2000;
+const UPLOAD_OPTIMIZE_MAX_BYTES = 5 * 1024 * 1024;
 
 type DebugInfo = {
   file: { name: string; type: string; size: number } | null;
@@ -87,13 +91,28 @@ export default function UploadTestPage() {
       return;
     }
 
-    setStatus("uploading");
+    setStatus("optimizing");
     setErrorMessage("");
     setClientFetchError("");
     setDebug({
       ...emptyDebug,
       file: { name: file.name, type: file.type, size: file.size },
     });
+
+    let fileToUpload: File;
+    try {
+      fileToUpload = await prepareUploadImage(file, {
+        maxSide: UPLOAD_OPTIMIZE_MAX_SIDE,
+        maxBytes: UPLOAD_OPTIMIZE_MAX_BYTES,
+      });
+    } finally {
+      setStatus("uploading");
+    }
+
+    setDebug((prev) => ({
+      ...prev,
+      file: { name: fileToUpload.name, type: fileToUpload.type, size: fileToUpload.size },
+    }));
 
     try {
       // Step 1: Get signed upload URL from our API (API expects snake_case)
@@ -106,9 +125,9 @@ export default function UploadTestPage() {
             ownerId: userId,
             owner_id: userId,
             album_id: TEST_ALBUM_ID,
-            filename: file.name,
-            content_type: file.type,
-            size_bytes: file.size,
+            filename: fileToUpload.name,
+            content_type: fileToUpload.type,
+            size_bytes: fileToUpload.size,
           }),
         });
       } catch (fetchErr) {
@@ -155,8 +174,8 @@ export default function UploadTestPage() {
       // Step 2: Upload file to signed URL via PUT
       const putRes = await fetch(signedUrl, {
         method: "PUT",
-        headers: { "Content-Type": file.type || "application/octet-stream" },
-        body: file,
+        headers: { "Content-Type": fileToUpload.type || "application/octet-stream" },
+        body: fileToUpload,
       });
 
       const putBodyRaw = await putRes.text();
@@ -267,7 +286,7 @@ export default function UploadTestPage() {
         <button
           type="button"
           onClick={handleUpload}
-          disabled={status === "uploading" || !selectedFile || !userId}
+          disabled={status === "optimizing" || status === "uploading" || !selectedFile || !userId}
           className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           Upload
@@ -296,6 +315,7 @@ export default function UploadTestPage() {
         </p>
 
         <p className="text-sm text-muted-foreground">
+          {status === "optimizing" && "Optimizing image…"}
           {status === "uploading" && "Uploading..."}
           {status === "success" && "Upload successful"}
           {status === "error" && (

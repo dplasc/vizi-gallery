@@ -1,7 +1,7 @@
 "use client";
 
 /*
- * Flow: upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> router.refresh().
+ * Flow: optimize (client) -> upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> router.refresh().
  * - upload-url called without albumId so path is ownerId/temp/... (promote requires tempPath).
  * - Promote requires gallery_session (cookies sent by same-origin fetch).
  * - 403 quota_exceeded -> "Quota exceeded"; promote failure -> show response error.
@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { prepareUploadImage } from "@/lib/images/prepareUploadImage";
 
 type UploadUrlApiResponse = {
   signedUrl: string;
@@ -30,10 +31,15 @@ type Props = {
   albumId: string;
 };
 
+const UPLOAD_OPTIMIZE_MAX_SIDE = 2000;
+const UPLOAD_OPTIMIZE_MAX_BYTES = 5 * 1024 * 1024;
+
 export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
+  const [optimizationSkippedToast, setOptimizationSkippedToast] = useState<string | null>(null);
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
@@ -41,16 +47,33 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
 
   async function handleUpload() {
     const selectedFile = file;
-    if (!selectedFile || uploading) return;
+    if (!selectedFile || uploading || optimizing) return;
 
     setResult(null);
     setMessage(null);
     setUploadedPath(null);
+    setOptimizationSkippedToast(null);
+    setOptimizing(true);
+
+    let fileToUpload: File;
+    try {
+      fileToUpload = await prepareUploadImage(selectedFile, {
+        maxSide: UPLOAD_OPTIMIZE_MAX_SIDE,
+        maxBytes: UPLOAD_OPTIMIZE_MAX_BYTES,
+      });
+      const isImage = (selectedFile.type ?? "").trim().toLowerCase().startsWith("image/");
+      if (isImage && fileToUpload === selectedFile) {
+        setOptimizationSkippedToast("Image could not be optimized; uploading original.");
+      }
+    } finally {
+      setOptimizing(false);
+    }
+
     setUploading(true);
 
     const contentType =
-      selectedFile.type && selectedFile.type.trim()
-        ? selectedFile.type.trim()
+      fileToUpload.type && fileToUpload.type.trim()
+        ? fileToUpload.type.trim()
         : "application/octet-stream";
 
     try {
@@ -60,8 +83,8 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ownerId,
-          filename: selectedFile.name,
-          fileSize: selectedFile.size,
+          filename: fileToUpload.name,
+          fileSize: fileToUpload.size,
           contentType,
         }),
       });
@@ -95,7 +118,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       const putRes = await fetch(signedUrl, {
         method: "PUT",
         headers: { "Content-Type": contentType },
-        body: selectedFile,
+        body: fileToUpload,
       });
 
       if (putRes.status !== 200 && putRes.status !== 201) {
@@ -112,7 +135,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         body: JSON.stringify({
           tempPath: path,
           albumId,
-          sizeBytes: selectedFile.size,
+          sizeBytes: fileToUpload.size,
           contentType,
         }),
       });
@@ -149,7 +172,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   }
 
   const hasFile = !!file;
-  const disabled = !hasFile || uploading;
+  const disabled = !hasFile || uploading || optimizing;
 
   return (
     <Card>
@@ -157,16 +180,21 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         <CardTitle>Upload to album</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {optimizationSkippedToast && (
+          <Alert className="border-amber-500/50 bg-amber-500/10">
+            <AlertDescription>{optimizationSkippedToast}</AlertDescription>
+          </Alert>
+        )}
         <div className="flex flex-wrap items-center gap-2">
           <Input
             ref={inputRef}
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            disabled={uploading}
+            disabled={uploading || optimizing}
             className="max-w-xs"
           />
           <Button onClick={handleUpload} disabled={disabled}>
-            {uploading ? "Uploading..." : "Upload"}
+            {optimizing ? "Optimizing image…" : uploading ? "Uploading..." : "Upload"}
           </Button>
         </div>
 
