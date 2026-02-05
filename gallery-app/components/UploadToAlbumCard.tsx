@@ -109,7 +109,12 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       const promoteRes = await fetch("/api/gallery/promote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tempPath: path, albumId }),
+        body: JSON.stringify({
+          tempPath: path,
+          albumId,
+          sizeBytes: selectedFile.size,
+          contentType,
+        }),
       });
       const promoteData = await promoteRes.json().catch(() => ({}));
 

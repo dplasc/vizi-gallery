@@ -30,6 +30,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    const sizeBytes =
+      typeof body.sizeBytes === "number" && body.sizeBytes >= 0
+        ? body.sizeBytes
+        : typeof body.size_bytes === "number" && body.size_bytes >= 0
+          ? body.size_bytes
+          : 0;
+    const contentType =
+      typeof body.contentType === "string" ? body.contentType.trim() : null;
     const expectedTempPrefix = `${ownerId}/temp/`;
     if (!tempPath.startsWith(expectedTempPrefix)) {
       return NextResponse.json(
@@ -72,7 +80,15 @@ export async function POST(request: Request) {
       .insert({
         owner_id: ownerId,
         album_id: albumId,
-        path: toPath,
+        storage_key_original: toPath,
+        storage_key_optimized: toPath,
+        storage_key_thumb: null,
+        mime_type: contentType ?? "application/octet-stream",
+        width: 0,
+        height: 0,
+        size_bytes_original: sizeBytes,
+        size_bytes_optimized: sizeBytes,
+        size_bytes: sizeBytes,
       })
       .select("id")
       .single();
