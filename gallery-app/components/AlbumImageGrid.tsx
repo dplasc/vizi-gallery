@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [loadedIds, setLoadedIds] = useState<Set<string>>(new Set());
   const visibleImages = images.filter((img) => !hiddenIds.has(img.id));
   const count = visibleImages.length;
   const current = count > 0 ? visibleImages[index] : null;
@@ -112,13 +114,23 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
                 setIndex(i);
                 setOpen(true);
               }}
-              className="h-full w-full overflow-hidden rounded-md border border-border bg-muted text-left transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              className="relative h-full w-full overflow-hidden rounded-md border border-border bg-muted text-left transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               {(img.thumbnailUrl ?? img.url) ? (
-                <img
+                <Image
                   src={img.thumbnailUrl ?? img.url}
                   alt=""
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  loading="lazy"
+                  className={`object-cover transition-all duration-[400ms] ${
+                    loadedIds.has(img.id)
+                      ? "blur-0 scale-100 opacity-100"
+                      : "blur-md scale-105 opacity-70"
+                  }`}
+                  onLoad={() =>
+                    setLoadedIds((prev) => new Set(prev).add(img.id))
+                  }
                 />
               ) : (
                 <span className="text-muted-foreground block p-2 text-xs">
