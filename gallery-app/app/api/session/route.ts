@@ -17,14 +17,16 @@ function invalidResponse(
   redirectTo: (path: string) => NextResponse,
   category: TokenErrorCategory
 ) {
-  const categoryParam = category ? `&category=${encodeURIComponent(category)}` : "";
+  const resolvedCategory = category || "UNKNOWN";
   if (redirectToSso) {
-    return redirectTo(`/sso?error=invalid${categoryParam}`);
+    return redirectTo(
+      `/sso?error=invalid&from=SESSION&category=${encodeURIComponent(resolvedCategory)}`
+    );
   }
   return NextResponse.json(
     {
-      error: `Invalid or expired token (${category})`,
-      category,
+      error: `Invalid or expired token (${resolvedCategory})`,
+      category: resolvedCategory,
     },
     { status: 401 }
   );
