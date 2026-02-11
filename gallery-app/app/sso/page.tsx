@@ -19,6 +19,7 @@ type Props = {
     error?: string;
     category?: string;
     from?: string;
+    reason?: string;
   }>;
 };
 
@@ -28,9 +29,12 @@ export default async function SSOPage({ searchParams }: Props) {
   const error = params.error;
   const category = params.category ?? "";
   const from = params.from;
+  const reason = params.reason;
 
   if (error === "invalid" || !token) {
-    return <SSOError from={from} category={category} error={error} />;
+    return (
+      <SSOError from={from} category={category} reason={reason} error={error} />
+    );
   }
 
   return (
@@ -64,13 +68,15 @@ export default async function SSOPage({ searchParams }: Props) {
 function SSOError({
   from: fromParam,
   category = "",
+  reason: reasonParam,
   error: errorParam,
-}: { from?: string; category?: string; error?: string }) {
+}: { from?: string; category?: string; reason?: string; error?: string }) {
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
   const categoryLabel = category ? ` (${category})` : "";
   const fromDisplay = fromParam ?? "NONE";
   const categoryDisplay = category || "NONE";
+  const reasonDisplay = reasonParam ?? "NONE";
   const errorDisplay = errorParam ?? "NONE";
 
   return (
@@ -84,7 +90,7 @@ function SSOError({
               i pokušaj ponovno.
             </CardDescription>
             <p className="text-muted-foreground mt-2 text-xs">
-              SSO Debug: from={fromDisplay} category={categoryDisplay} error={errorDisplay}
+              SSO Debug: from={fromDisplay} category={categoryDisplay} reason={reasonDisplay} error={errorDisplay}
             </p>
             <p className="text-muted-foreground mt-1 text-xs">
               DEPLOY MARKER: 2026-02-11 SSO-DIAG v1

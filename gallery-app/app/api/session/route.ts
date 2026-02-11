@@ -15,18 +15,20 @@ const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 function invalidResponse(
   redirectToSso: boolean,
   redirectTo: (path: string) => NextResponse,
-  category: TokenErrorCategory
+  category: TokenErrorCategory,
+  reason: string
 ) {
   const resolvedCategory = category || "UNKNOWN";
   if (redirectToSso) {
     return redirectTo(
-      `/sso?error=invalid&from=SESSION&category=${encodeURIComponent(resolvedCategory)}`
+      `/sso?error=invalid&from=SESSION&category=${encodeURIComponent(resolvedCategory)}&reason=${encodeURIComponent(reason)}`
     );
   }
   return NextResponse.json(
     {
       error: `Invalid or expired token (${resolvedCategory})`,
       category: resolvedCategory,
+      reason,
     },
     { status: 401 }
   );
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
       body = await request.json();
     } catch (parseErr) {
       console.error("[gallery-sso] JSON body parse failed:", parseErr);
-      return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
+      return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN", "UNKNOWN_ERROR");
     }
     token = typeof body?.token === "string" ? body.token.trim() : null;
   } else {
@@ -66,7 +68,12 @@ export async function POST(request: NextRequest) {
 
   if (!token) {
     console.error("[gallery-sso] MISSING_TOKEN: no token in request");
-    return invalidResponse(isFormSubmit, redirectTo, "MISSING_TOKEN");
+    return invalidResponse(
+      isFormSubmit,
+      redirectTo,
+      "MISSING_TOKEN",
+      "MISSING_TOKEN"
+    );
   }
 
   const debugInfo = getTokenDebugInfo(token);
@@ -103,7 +110,12 @@ export async function POST(request: NextRequest) {
       "category=",
       category
     );
-    return invalidResponse(isFormSubmit, redirectTo, category);
+    return invalidResponse(
+      isFormSubmit,
+      redirectTo,
+      category,
+      "VERIFY_FETCH_FAILED"
+    );
   }
 
   let viziErrorBody = "";
@@ -130,7 +142,12 @@ export async function POST(request: NextRequest) {
       "category=",
       category
     );
-    return invalidResponse(isFormSubmit, redirectTo, category);
+    return invalidResponse(
+      isFormSubmit,
+      redirectTo,
+      category,
+      `VIZI_NON_OK_STATUS_${res.status}`
+    );
   }
 
   let data: { user_id?: string };
@@ -138,13 +155,23 @@ export async function POST(request: NextRequest) {
     data = await res.json();
   } catch {
     console.error("[gallery-sso] Vizi response JSON parse failed");
-    return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
+    return invalidResponse(
+      isFormSubmit,
+      redirectTo,
+      "UNKNOWN",
+      "VIZI_JSON_PARSE_FAILED"
+    );
   }
 
   const userId = data.user_id;
   if (!userId || typeof userId !== "string") {
     console.error("[gallery-sso] Vizi returned ok but no user_id");
-    return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
+    return invalidResponse(
+      isFormSubmit,
+      redirectTo,
+      "UNKNOWN",
+      "VIZI_MISSING_USER_ID"
+    );
   }
 
   const redirectResponse = redirectTo("/albums");
