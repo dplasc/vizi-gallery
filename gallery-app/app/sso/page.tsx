@@ -13,16 +13,17 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ token?: string; error?: string }>;
+  searchParams: Promise<{ token?: string; error?: string; category?: string }>;
 };
 
 export default async function SSOPage({ searchParams }: Props) {
   const params = await searchParams;
   const token = params.token?.trim();
   const error = params.error;
+  const category = params.category ?? "";
 
   if (error === "invalid" || !token) {
-    return <SSOError />;
+    return <SSOError category={category} />;
   }
 
   return (
@@ -53,9 +54,10 @@ export default async function SSOPage({ searchParams }: Props) {
   );
 }
 
-function SSOError() {
+function SSOError({ category = "" }: { category?: string }) {
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
+  const categoryLabel = category ? ` (${category})` : "";
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -64,8 +66,8 @@ function SSOError() {
           <CardHeader>
             <CardTitle>Neuspjela prijava</CardTitle>
             <CardDescription>
-              Token je neispravan ili je istekao. Vrati se u Vizi i pokušaj
-              ponovno.
+              Token je neispravan ili je istekao{categoryLabel}. Vrati se u Vizi
+              i pokušaj ponovno.
             </CardDescription>
           </CardHeader>
           <CardContent />

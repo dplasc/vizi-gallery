@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getViziBaseUrl } from "@/lib/config";
+import {
+  type TokenErrorCategory,
+  categorizeTokenError,
+  getTokenDebugInfo,
+  decodeJwtPayloadUnsafe,
+} from "@/lib/sso-debug";
 
 export const dynamic = "force-dynamic";
 
@@ -8,13 +14,18 @@ const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 function invalidResponse(
   redirectToSso: boolean,
-  redirectTo: (path: string) => NextResponse
+  redirectTo: (path: string) => NextResponse,
+  category: TokenErrorCategory
 ) {
+  const categoryParam = category ? `&category=${encodeURIComponent(category)}` : "";
   if (redirectToSso) {
-    return redirectTo("/sso?error=invalid");
+    return redirectTo(`/sso?error=invalid${categoryParam}`);
   }
   return NextResponse.json(
-    { error: "Invalid or expired token" },
+    {
+      error: `Invalid or expired token (${category})`,
+      category,
+    },
     { status: 401 }
   );
 }
@@ -40,8 +51,9 @@ export async function POST(request: NextRequest) {
     let body: { token?: string };
     try {
       body = await request.json();
-    } catch {
-      return invalidResponse(isFormSubmit, redirectTo);
+    } catch (parseErr) {
+      console.error("[gallery-sso] JSON body parse failed:", parseErr);
+      return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
     }
     token = typeof body?.token === "string" ? body.token.trim() : null;
   } else {
@@ -51,8 +63,19 @@ export async function POST(request: NextRequest) {
   }
 
   if (!token) {
-    return invalidResponse(isFormSubmit, redirectTo);
+    console.error("[gallery-sso] MISSING_TOKEN: no token in request");
+    return invalidResponse(isFormSubmit, redirectTo, "MISSING_TOKEN");
   }
+
+  const debugInfo = getTokenDebugInfo(token);
+  console.log(
+    "[gallery-sso] token debug:",
+    `len=${debugInfo.length}`,
+    `first10=${debugInfo.first10}`,
+    `last10=${debugInfo.last10}`,
+    `exp=${debugInfo.exp ?? "null"}`,
+    `iat=${debugInfo.iat ?? "null"}`
+  );
 
   const viziBase = getViziBaseUrl();
   const verifyUrl = `${viziBase}/api/gallery/sso/verify`;
@@ -66,24 +89,60 @@ export async function POST(request: NextRequest) {
       cache: "no-store",
     });
   } catch (err) {
-    console.error("Gallery session verify request failed:", err);
-    return invalidResponse(isFormSubmit, redirectTo);
+    const category = categorizeTokenError(err, {
+      decodedExp: debugInfo.exp,
+    });
+    console.error(
+      "[gallery-sso] verify request failed:",
+      "errName=",
+      err instanceof Error ? err.name : "unknown",
+      "errMessage=",
+      err instanceof Error ? err.message : String(err),
+      "category=",
+      category
+    );
+    return invalidResponse(isFormSubmit, redirectTo, category);
   }
 
+  let viziErrorBody = "";
   if (!res.ok) {
-    return invalidResponse(isFormSubmit, redirectTo);
+    try {
+      viziErrorBody = await res.text();
+    } catch {
+      viziErrorBody = "";
+    }
+    const decoded = decodeJwtPayloadUnsafe(token);
+    const category = categorizeTokenError(
+      new Error(viziErrorBody || `HTTP ${res.status}`),
+      {
+        viziErrorBody,
+        decodedExp: decoded?.exp ?? null,
+      }
+    );
+    console.error(
+      "[gallery-sso] verify failed:",
+      "status=",
+      res.status,
+      "viziBody=",
+      viziErrorBody?.slice(0, 200) ?? "(empty)",
+      "category=",
+      category
+    );
+    return invalidResponse(isFormSubmit, redirectTo, category);
   }
 
   let data: { user_id?: string };
   try {
     data = await res.json();
   } catch {
-    return invalidResponse(isFormSubmit, redirectTo);
+    console.error("[gallery-sso] Vizi response JSON parse failed");
+    return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
   }
 
   const userId = data.user_id;
   if (!userId || typeof userId !== "string") {
-    return invalidResponse(isFormSubmit, redirectTo);
+    console.error("[gallery-sso] Vizi returned ok but no user_id");
+    return invalidResponse(isFormSubmit, redirectTo, "UNKNOWN");
   }
 
   const redirectResponse = redirectTo("/albums");
