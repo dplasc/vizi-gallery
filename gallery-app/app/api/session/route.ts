@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   );
 
   const viziBase = getViziBaseUrl();
-  const verifyUrl = `${viziBase}/api/gallery/sso/verify`;
+  const verifyUrl = `${viziBase}/api/gallery/verify`;
 
   let res: Response;
   try {
