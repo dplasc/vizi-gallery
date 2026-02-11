@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type Props = {
   searchParams: Promise<{ token?: string; error?: string; category?: string }>;
@@ -23,7 +24,7 @@ export default async function SSOPage({ searchParams }: Props) {
   const category = params.category ?? "";
 
   if (error === "invalid" || !token) {
-    return <SSOError category={category} />;
+    return <SSOError category={category} error={error} />;
   }
 
   return (
@@ -54,10 +55,15 @@ export default async function SSOPage({ searchParams }: Props) {
   );
 }
 
-function SSOError({ category = "" }: { category?: string }) {
+function SSOError({
+  category = "",
+  error: errorParam,
+}: { category?: string; error?: string }) {
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
   const categoryLabel = category ? ` (${category})` : "";
+  const categoryDisplay = category || "NONE";
+  const errorDisplay = errorParam ?? "NONE";
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
@@ -69,6 +75,12 @@ function SSOError({ category = "" }: { category?: string }) {
               Token je neispravan ili je istekao{categoryLabel}. Vrati se u Vizi
               i pokušaj ponovno.
             </CardDescription>
+            <p className="text-muted-foreground mt-2 text-xs">
+              SSO Debug: category={categoryDisplay} error={errorDisplay}
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              DEPLOY MARKER: 2026-02-11 SSO-DIAG v1
+            </p>
           </CardHeader>
           <CardContent />
           <CardFooter>
