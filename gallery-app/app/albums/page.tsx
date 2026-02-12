@@ -193,6 +193,11 @@ export default async function AlbumsPage({ searchParams }: Props) {
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
 
+  const percent =
+    usage.limitMb > 0
+      ? Math.min(Math.round((usage.usedMb / usage.limitMb) * 100), 100)
+      : 0;
+
   const addSlikeAlbum = hasAlbums
     ? albums!.find((a) => a.name === "Galerija") ?? albums![0]
     : null;
@@ -272,6 +277,17 @@ export default async function AlbumsPage({ searchParams }: Props) {
               Iskorišteno: {usage.usedMb} MB od {usage.limitMb} MB
             </p>
             <p className="text-xs">Preostalo: {usage.remainingMb} MB</p>
+            <div className="mt-2 max-w-xs">
+              <p className="mb-1 text-xs text-muted-foreground">
+                Iskorištenost: {percent}%
+              </p>
+              <div className="h-2 w-full rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-primary transition-[width]"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+            </div>
           </div>
         )}
 
