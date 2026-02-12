@@ -329,7 +329,13 @@ export default async function AlbumsPage({ searchParams }: Props) {
                         </div>
                       </a>
                       <div className="shrink-0">
-                        <AlbumDeleteButton albumId={album.id} />
+                        {album.name === "Galerija" ? (
+                          <p className="text-muted-foreground text-xs">
+                            Defaultni album se ne može obrisati.
+                          </p>
+                        ) : (
+                          <AlbumDeleteButton albumId={album.id} />
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0" />
