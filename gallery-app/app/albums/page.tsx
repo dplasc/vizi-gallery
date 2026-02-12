@@ -287,6 +287,12 @@ export default async function AlbumsPage({ searchParams }: Props) {
                   style={{ width: `${percent}%` }}
                 />
               </div>
+              {percent >= 80 && (
+                <p className="mt-2 text-xs text-amber-500">
+                  Pri kraju ste limita. Za više prostora odaberite PRO 500 (500
+                  MB).
+                </p>
+              )}
             </div>
           </div>
         )}
