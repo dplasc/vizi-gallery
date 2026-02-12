@@ -108,7 +108,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
   if (albumIds.length > 0) {
     const { data: coverRows } = await admin
       .from("gallery_images")
-      .select("album_id, storage_key_original, storage_key_optimized")
+      .select("album_id, storage_key_thumb, storage_key_optimized, storage_key_original")
       .in("album_id", albumIds)
       .eq("owner_id", userId)
       .order("id", { ascending: false });
@@ -125,8 +125,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
     for (const row of coverRows ?? []) {
       if (row.album_id && !albumToKey.has(row.album_id)) {
         const key =
-          row.storage_key_optimized?.trim() ||
-          row.storage_key_original?.trim() ||
+          (row.storage_key_thumb ?? row.storage_key_optimized ?? row.storage_key_original)?.trim() ||
           "";
         if (key) albumToKey.set(row.album_id, key);
       }
