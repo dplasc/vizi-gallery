@@ -81,7 +81,13 @@ export default async function AlbumsPage({ searchParams }: Props) {
   // Auto-create default album for first-time owners. Redirect immediately—never render empty state.
   // If create fails, redirect with reason so UI can show the real error.
   if (!fetchError && albums && albums.length === 0) {
+    // [AUTO_CREATE_ALBUM] Temporary: log before attempt
+    console.log("[AUTO_CREATE_ALBUM] Attempting default album for userId:", userId);
     const createResult = await createAlbum(userId, "Galerija", "");
+    if (!createResult.ok) {
+      // [AUTO_CREATE_ALBUM] Temporary: log failure for debugging
+      console.error("[AUTO_CREATE_ALBUM] createAlbum failed:", createResult.error);
+    }
     if (createResult.ok) {
       const { data: albumsAfter } = await admin
         .from("gallery_albums")

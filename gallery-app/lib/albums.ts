@@ -28,7 +28,14 @@ export async function createAlbum(
 
   if (error) {
     const errMsg = [error.code, error.message].filter(Boolean).join(": ") || "Unknown error";
-    console.error("Gallery album insert failed:", error);
+    // [AUTO_CREATE_ALBUM] Temporary: capture full Supabase error for debugging
+    const errDetails = {
+      code: (error as { code?: string })?.code,
+      message: (error as { message?: string })?.message,
+      details: (error as { details?: string })?.details,
+      hint: (error as { hint?: string })?.hint,
+    };
+    console.error("[AUTO_CREATE_ALBUM] Gallery album insert failed:", JSON.stringify(errDetails, null, 2), "| raw:", error);
     return { ok: false, error: errMsg };
   }
   return data?.id != null ? { ok: true, id: data.id } : { ok: false, error: "No id returned" };
