@@ -7,8 +7,9 @@ export async function getStorageUsage(
   const { data: limitData } = await supabase.rpc("get_user_storage_limit", {
     p_owner_id: ownerId,
   });
-  const limitMb =
+  const limitBytes =
     typeof limitData === "number" && limitData >= 0 ? limitData : 0;
+  const limitMb = Math.round(limitBytes / 1024 / 1024);
 
   const { data: rows } = await supabase
     .from("gallery_images")
