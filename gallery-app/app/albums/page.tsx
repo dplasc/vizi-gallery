@@ -81,13 +81,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
   // Auto-create default album for first-time owners. Redirect immediately—never render empty state.
   // If create fails, redirect with reason so UI can show the real error.
   if (!fetchError && albums && albums.length === 0) {
-    // [AUTO_CREATE_ALBUM] Temporary: log before attempt
-    console.log("[AUTO_CREATE_ALBUM] Attempting default album for userId:", userId);
     const createResult = await createAlbum(userId, "Galerija", "");
-    if (!createResult.ok) {
-      // [AUTO_CREATE_ALBUM] Temporary: log failure for debugging
-      console.error("[AUTO_CREATE_ALBUM] createAlbum failed:", createResult.error);
-    }
     if (createResult.ok) {
       const { data: albumsAfter } = await admin
         .from("gallery_albums")
@@ -169,21 +163,23 @@ export default async function AlbumsPage({ searchParams }: Props) {
     reasonParam && isCreateFailed
       ? `${ERROR_MESSAGES.create_failed} (${reasonParam})`
       : ERROR_MESSAGES.create_failed;
+  const hasAlbums = albums && albums.length > 0;
   const errorMessage =
-    isAutoCreateFailed
-      ? autoCreateMessage
-      : isCreateFailed
-        ? createFailedMessage
-        : errorCode && ERROR_MESSAGES[errorCode]
-          ? ERROR_MESSAGES[errorCode]
-          : errorCode
-            ? "Došlo je do greške."
-            : null;
+    hasAlbums
+      ? null
+      : isAutoCreateFailed
+        ? autoCreateMessage
+        : isCreateFailed
+          ? createFailedMessage
+          : errorCode && ERROR_MESSAGES[errorCode]
+            ? ERROR_MESSAGES[errorCode]
+            : errorCode
+              ? "Došlo je do greške."
+              : null;
 
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
 
-  const hasAlbums = albums && albums.length > 0;
   const addSlikeAlbum = hasAlbums
     ? albums!.find((a) => a.name === "Galerija") ?? albums![0]
     : null;
