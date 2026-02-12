@@ -85,6 +85,30 @@ export async function POST(request: NextRequest) {
   const wantsJson = request.headers.get("accept")?.includes("application/json");
 
   if (!result.ok) {
+    if (result.error === "plan_required") {
+      if (wantsJson) {
+        return NextResponse.json(
+          { error: "plan_required" },
+          { status: 403 }
+        );
+      }
+      return NextResponse.redirect(
+        new URL("/albums?error=plan_required", request.url),
+        302
+      );
+    }
+    if (result.error === "plan_check_failed") {
+      if (wantsJson) {
+        return NextResponse.json(
+          { error: "plan_check_failed" },
+          { status: 500 }
+        );
+      }
+      return NextResponse.redirect(
+        new URL("/albums?error=plan_check_failed", request.url),
+        302
+      );
+    }
     const reason = result.error.slice(0, 120).trim();
     const reasonParam = reason ? `&reason=${encodeURIComponent(reason)}` : "";
     if (wantsJson) {

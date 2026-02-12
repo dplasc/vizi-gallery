@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createAlbum } from "@/lib/albums";
+import { canUserCreateAlbum, createAlbum } from "@/lib/albums";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +30,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   description_too_long: "Opis je predugačak.",
   create_failed: "Kreiranje albuma nije uspjelo. Pokušaj ponovno.",
   auto_create_failed: "Kreiranje defaultnog albuma nije uspjelo. Kreiraj album ručno ispod.",
+  plan_required: "Galerija je dostupna u PRO planu.",
+  plan_check_failed: "Provjera plana nije uspjela. Pokušaj ponovno kasnije.",
 };
 
 function formatDate(iso: string): string {
@@ -78,9 +80,11 @@ export default async function AlbumsPage({ searchParams }: Props) {
     .eq("owner_id", userId)
     .order("created_at", { ascending: false });
 
-  // Auto-create default album for first-time owners. Redirect immediately—never render empty state.
+  const canCreateAlbums = await canUserCreateAlbum(userId);
+
+  // Auto-create default album for first-time owners (only if plan allows). Redirect immediately—never render empty state.
   // If create fails, redirect with reason so UI can show the real error.
-  if (!fetchError && albums && albums.length === 0) {
+  if (canCreateAlbums && !fetchError && albums && albums.length === 0) {
     const createResult = await createAlbum(userId, "Galerija", "");
     if (createResult.ok) {
       const { data: albumsAfter } = await admin
@@ -155,6 +159,8 @@ export default async function AlbumsPage({ searchParams }: Props) {
   const reasonParam = params.reason?.trim();
   const isAutoCreateFailed = errorCode === "auto_create_failed";
   const isCreateFailed = errorCode === "create_failed";
+  const isPlanRequired = errorCode === "plan_required";
+  const isPlanCheckFailed = errorCode === "plan_check_failed";
   const autoCreateMessage = reasonParam
     ? `Kreiranje defaultnog albuma nije uspjelo: ${reasonParam}. Kreiraj album ručno ispod.`
     : ERROR_MESSAGES.auto_create_failed;
@@ -165,16 +171,22 @@ export default async function AlbumsPage({ searchParams }: Props) {
   const hasAlbums = albums && albums.length > 0;
   const errorMessage =
     hasAlbums
-      ? null
+      ? isPlanCheckFailed
+        ? ERROR_MESSAGES.plan_check_failed
+        : null
       : isAutoCreateFailed
         ? autoCreateMessage
         : isCreateFailed
           ? createFailedMessage
-          : errorCode && ERROR_MESSAGES[errorCode]
-            ? ERROR_MESSAGES[errorCode]
-            : errorCode
-              ? "Došlo je do greške."
-              : null;
+          : isPlanRequired
+            ? ERROR_MESSAGES.plan_required
+            : isPlanCheckFailed
+              ? ERROR_MESSAGES.plan_check_failed
+              : errorCode && ERROR_MESSAGES[errorCode]
+                ? ERROR_MESSAGES[errorCode]
+                : errorCode
+                  ? "Došlo je do greške."
+                  : null;
 
   const viziBase = getViziBaseUrl();
   const appUrl = `${viziBase}/app`;
@@ -261,10 +273,16 @@ export default async function AlbumsPage({ searchParams }: Props) {
           </div>
         )}
 
-        {hasAlbums ? (
-          <NewAlbumDialog />
+        {canCreateAlbums ? (
+          hasAlbums ? (
+            <NewAlbumDialog />
+          ) : (
+            newAlbumForm
+          )
         ) : (
-          newAlbumForm
+          <p className="text-muted-foreground text-sm">
+            Galerija je dostupna u PRO planu.
+          </p>
         )}
 
         {fetchError ? (
