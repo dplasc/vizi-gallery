@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getGallerySession } from "@/lib/cookies";
 import { getViziBaseUrl } from "@/lib/config";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getStorageUsage } from "@/lib/storage";
 import { canUserCreateAlbum, createAlbum } from "@/lib/albums";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
   }
 
   const admin = createSupabaseAdminClient();
+  const usage = await getStorageUsage(admin, userId);
 
   const { data: profile } = await admin
     .from("profiles")
@@ -263,6 +265,15 @@ export default async function AlbumsPage({ searchParams }: Props) {
             </a>
           )}
         </div>
+
+        {usage.limitMb > 0 && (
+          <div className="space-y-0.5 text-muted-foreground">
+            <p className="text-sm">
+              Iskorišteno: {usage.usedMb} MB od {usage.limitMb} MB
+            </p>
+            <p className="text-xs">Preostalo: {usage.remainingMb} MB</p>
+          </div>
+        )}
 
         {errorMessage && (
           <div
