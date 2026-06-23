@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getGallerySession } from "@/lib/cookies";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,14 @@ function randomHex(length = 16): string {
 
 export async function POST(request: Request) {
   try {
+    const ownerId = await getGallerySession();
+    if (!ownerId) {
+      return NextResponse.json(
+        { ok: false, error: "unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
     if (!supabaseUrl || !serviceRoleKey) {
@@ -48,25 +57,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const ownerId =
-      typeof body.ownerId === "string"
-        ? body.ownerId.trim() || undefined
-        : typeof body.owner_id === "string"
-          ? body.owner_id.trim() || undefined
-          : undefined;
     const albumId =
       typeof body.albumId === "string"
         ? body.albumId.trim() || undefined
         : typeof body.album_id === "string"
           ? body.album_id.trim() || undefined
           : undefined;
-
-    if (!ownerId) {
-      return NextResponse.json(
-        { error: "ownerId is required" },
-        { status: 400 }
-      );
-    }
 
     const rawSize =
       body.fileSize ?? body.file_size ?? body.size_bytes;
