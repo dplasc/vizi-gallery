@@ -46,11 +46,39 @@ export async function POST(request: Request) {
       );
     }
 
+    const admin = createSupabaseAdminClient();
+    const { data: album, error: albumError } = await admin
+      .from("gallery_albums")
+      .select("id, owner_id")
+      .eq("id", albumId)
+      .maybeSingle();
+
+    if (albumError) {
+      console.error("Gallery promote album lookup failed:", albumError);
+      return NextResponse.json(
+        { error: albumError.message || "Database error" },
+        { status: 500 }
+      );
+    }
+
+    if (!album) {
+      return NextResponse.json(
+        { ok: false, error: "album_not_found" },
+        { status: 404 }
+      );
+    }
+
+    if (album.owner_id !== ownerId) {
+      return NextResponse.json(
+        { ok: false, error: "forbidden" },
+        { status: 403 }
+      );
+    }
+
     const filename = tempPath.replace(/^.*\//, "") || "file";
     const fromPath = tempPath.startsWith("/") ? tempPath.slice(1) : tempPath;
     const toPath = `${ownerId}/${albumId}/${filename}`;
 
-    const admin = createSupabaseAdminClient();
     const { error: copyError } = await admin.storage
       .from(BUCKET)
       .copy(fromPath, toPath);
