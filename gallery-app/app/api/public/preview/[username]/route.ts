@@ -87,10 +87,11 @@ export async function GET(
 
     const { data: imageRows, error: imagesError } = await admin
       .from("gallery_images")
-      .select("id, storage_key_thumb, album_id")
+      .select(
+        "id, storage_key_thumb, storage_key_optimized, storage_key_original, album_id"
+      )
       .eq("owner_id", ownerId)
       .in("album_id", albumIds)
-      .not("storage_key_thumb", "is", null)
       .order("id", { ascending: false })
       .limit(PREVIEW_LIMIT);
 
@@ -102,23 +103,34 @@ export async function GET(
       );
     }
 
-    const rows = (imageRows ?? []).filter(
-      (row): row is { id: string; storage_key_thumb: string; album_id: string } =>
-        typeof row.id === "string" &&
-        typeof row.storage_key_thumb === "string" &&
-        row.storage_key_thumb.trim().length > 0 &&
-        typeof row.album_id === "string" &&
-        albumIds.includes(row.album_id)
-    );
+    const rows = (imageRows ?? [])
+      .map((row) => {
+        if (
+          typeof row.id !== "string" ||
+          typeof row.album_id !== "string" ||
+          !albumIds.includes(row.album_id)
+        ) {
+          return null;
+        }
+        const previewKey =
+          (
+            row.storage_key_thumb ??
+            row.storage_key_optimized ??
+            row.storage_key_original
+          )?.trim() || "";
+        if (!previewKey) return null;
+        return { id: row.id, previewKey };
+      })
+      .filter((row): row is { id: string; previewKey: string } => row !== null);
 
     if (rows.length === 0) {
       return jsonWithCache({ ok: true, images: [] }, 200, true);
     }
 
-    const thumbKeys = rows.map((row) => row.storage_key_thumb.trim());
+    const previewKeys = rows.map((row) => row.previewKey);
     const { data: signedData, error: signError } = await admin.storage
       .from(GALLERY_BUCKET)
-      .createSignedUrls(thumbKeys, SIGNED_URL_TTL_SECONDS);
+      .createSignedUrls(previewKeys, SIGNED_URL_TTL_SECONDS);
 
     if (signError) {
       console.error("[public/preview] signed URL error:", signError);
@@ -137,7 +149,7 @@ export async function GET(
 
     const images = rows
       .map((row) => {
-        const thumbUrl = keyToUrl.get(row.storage_key_thumb.trim());
+        const thumbUrl = keyToUrl.get(row.previewKey);
         if (!thumbUrl) return null;
         return {
           id: row.id,
