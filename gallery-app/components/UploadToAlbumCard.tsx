@@ -3,7 +3,7 @@
 /*
  * Flow: optimize (client) -> upload-url (temp path) -> PUT to signed URL -> promote (copy temp to album + insert gallery_images) -> [upload thumb, update storage_key_thumb] -> router.refresh().
  * - upload-url called without albumId so path is ownerId/temp/... (promote requires tempPath).
- * - Thumb: after promote, upload to ownerId/albumId/<imageId>_thumb.jpg via customPath; then update row storage_key_thumb (client Supabase, RLS).
+ * - Thumb: after promote, upload to ownerId/albumId/<imageId>_thumb.jpg via customPath; then PATCH /api/gallery/images/[imageId]/thumb (gallery_session).
  * - Promote requires gallery_session (cookies sent by same-origin fetch).
  * - 403 quota_exceeded -> "Quota exceeded"; promote failure -> show response error.
  */
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { prepareUploadImages } from "@/lib/images/prepareUploadImage";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type UploadUrlApiResponse = {
   signedUrl: string;
@@ -198,19 +197,20 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
               body: thumbFile,
             });
             if (thumbPutRes.status === 200 || thumbPutRes.status === 201) {
-              const supabase = createSupabaseBrowserClient();
-              console.log("THUMB DEBUG - attempting update", { imageId, ownerId, thumbStoragePath });
-              const { error } = await supabase
-                .from("gallery_images")
-                .update({ storage_key_thumb: thumbStoragePath })
-                .eq("id", imageId)
-                .eq("owner_id", ownerId);
-              if (error) {
-                console.error("THUMB DEBUG - update failed", error);
-              } else {
-                console.log("THUMB DEBUG - update success");
+              const linkRes = await fetch(
+                `/api/gallery/images/${imageId}/thumb`,
+                {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ thumbStoragePath }),
+                }
+              );
+              const linkData = await linkRes.json().catch(() => ({}));
+              if (!linkRes.ok || linkData?.ok !== true) {
+                setThumbFailedToast(
+                  "Thumbnail saved but not linked; image was added."
+                );
               }
-              if (error) setThumbFailedToast("Thumbnail saved but not linked; image was added.");
             } else {
               setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
             }
