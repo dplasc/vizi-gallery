@@ -86,6 +86,17 @@ export async function POST(request: NextRequest) {
     `iat=${debugInfo.iat ?? "null"}`
   );
 
+  const verifySecret = process.env.GALLERY_SSO_VERIFY_SECRET?.trim();
+  if (!verifySecret) {
+    console.error(
+      "[gallery-sso] GALLERY_SSO_VERIFY_SECRET is missing or empty; cannot verify token with Vizi"
+    );
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+
   const viziBase = getViziBaseUrl();
   const verifyUrl = `${viziBase}/api/gallery/verify`;
 
@@ -93,7 +104,10 @@ export async function POST(request: NextRequest) {
   try {
     res = await fetch(verifyUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Gallery-SSO-Secret": verifySecret,
+      },
       body: JSON.stringify({ token }),
       cache: "no-store",
     });
