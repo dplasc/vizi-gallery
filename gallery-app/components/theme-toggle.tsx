@@ -13,39 +13,29 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <Button
-        type="button"
-        variant="outline"
-        size="default"
-        className="h-9 w-9 shrink-0 px-0"
-        aria-label="Promijeni temu"
-        title="Promijeni temu"
-        disabled
-      >
-        <Sun className="h-4 w-4" aria-hidden />
-      </Button>
-    );
-  }
+  const isDark = (mounted ? resolvedTheme : "dark") === "dark";
 
-  const isDark = resolvedTheme === "dark";
+  function handleToggle() {
+    if (!mounted) return;
+    setTheme(isDark ? "light" : "dark");
+  }
 
   return (
     <Button
       type="button"
       variant="outline"
       size="default"
-      className="h-9 w-9 shrink-0 px-0"
+      className="h-9 shrink-0 gap-2 border-border bg-background px-3 text-foreground shadow-sm hover:bg-muted"
       aria-label="Promijeni temu"
       title="Promijeni temu"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={handleToggle}
     >
       {isDark ? (
-        <Sun className="h-4 w-4" aria-hidden />
+        <Sun className="h-4 w-4 shrink-0" aria-hidden />
       ) : (
-        <Moon className="h-4 w-4" aria-hidden />
+        <Moon className="h-4 w-4 shrink-0" aria-hidden />
       )}
+      <span className="text-sm font-medium">Tema</span>
     </Button>
   );
 }
