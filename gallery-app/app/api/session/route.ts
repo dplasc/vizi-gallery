@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getViziBaseUrl } from "@/lib/config";
+import { createGallerySessionToken } from "@/lib/gallery-session-token";
 
 export const dynamic = "force-dynamic";
 
@@ -100,9 +101,20 @@ export async function POST(request: NextRequest) {
     return invalidResponse(isFormSubmit, redirectTo);
   }
 
+  let sessionToken: string;
+  try {
+    sessionToken = createGallerySessionToken(userId);
+  } catch (err) {
+    console.error("[gallery-session] Failed to create session token:", err);
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+
   const redirectResponse = redirectTo("/albums");
   const isProduction = process.env.NODE_ENV === "production";
-  redirectResponse.cookies.set(GALLERY_SESSION_COOKIE, userId, {
+  redirectResponse.cookies.set(GALLERY_SESSION_COOKIE, sessionToken, {
     httpOnly: true,
     secure: isProduction,
     sameSite: "lax",
