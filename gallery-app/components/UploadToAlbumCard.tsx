@@ -38,6 +38,20 @@ const UPLOAD_OPTIMIZE_MAX_BYTES = 5 * 1024 * 1024;
 const THUMB_MAX_SIDE = 400;
 const THUMB_MAX_BYTES = 250 * 1024;
 
+function uploadErrorMessage(status: number, error?: unknown): string {
+  const code = typeof error === "string" ? error.trim() : "";
+  if (code === "quota_exceeded") {
+    return "Premašili ste dopušteni prostor za slike.";
+  }
+  if (status === 403) {
+    return "Nemate dopuštenje za učitavanje.";
+  }
+  if (status >= 500) {
+    return "Poslužitelj trenutno nije dostupan. Pokušajte ponovno kasnije.";
+  }
+  return `Učitavanje nije uspjelo. Pokušajte ponovno. (greška ${status})`;
+}
+
 export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -73,7 +87,9 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       fileToUpload = optimizedFile;
       const isImage = (selectedFile.type ?? "").trim().toLowerCase().startsWith("image/");
       if (isImage && fileToUpload === selectedFile) {
-        setOptimizationSkippedToast("Image could not be optimized; uploading original.");
+        setOptimizationSkippedToast(
+          "Slika se nije mogla optimizirati; učitavamo original."
+        );
       }
       if (t.size < fileToUpload.size) thumbFile = t;
     } finally {
@@ -105,14 +121,10 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       if (!postRes.ok) {
         if (postRes.status === 403 && postData?.error === "quota_exceeded") {
           setResult("error");
-          setMessage("Quota exceeded");
+          setMessage("Premašili ste dopušteni prostor za slike.");
         } else {
           setResult("error");
-          setMessage(
-            postData?.error
-              ? String(postData.error)
-              : `Error ${postRes.status}`
-          );
+          setMessage(uploadErrorMessage(postRes.status, postData?.error));
         }
         setUploading(false);
         return;
@@ -121,7 +133,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       const { signedUrl, path } = postData as UploadUrlApiResponse;
       if (!signedUrl || !path) {
         setResult("error");
-        setMessage("Invalid response from server");
+        setMessage("Neispravan odgovor poslužitelja. Pokušajte ponovno.");
         setUploading(false);
         return;
       }
@@ -134,7 +146,9 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
 
       if (putRes.status !== 200 && putRes.status !== 201) {
         setResult("error");
-        setMessage(`Upload failed: ${putRes.status}`);
+        setMessage(
+          `Prijenos datoteke nije uspio. Pokušajte ponovno. (greška ${putRes.status})`
+        );
         setUploading(false);
         return;
       }
@@ -155,9 +169,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
       if (!promoteRes.ok) {
         setResult("error");
         setMessage(
-          promoteData?.error != null
-            ? String(promoteData.error)
-            : `Promote failed: ${promoteRes.status}`
+          "Dodavanje slike u album nije uspjelo. Pokušajte ponovno."
         );
         setUploadedPath(path);
         setUploading(false);
@@ -210,31 +222,40 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
               } else {
                 console.log("THUMB DEBUG - update success");
               }
-              if (error) setThumbFailedToast("Thumbnail saved but not linked; image was added.");
+              if (error) {
+                setThumbFailedToast(
+                  "Minijatura je spremljena, ali nije povezana; slika je dodana."
+                );
+              }
             } else {
-              setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
+              setThumbFailedToast(
+                "Minijaturu nije moguće učitati; slika je dodana."
+              );
             }
           } else {
-            setThumbFailedToast("Thumbnail could not be uploaded; image was added.");
+            setThumbFailedToast(
+              "Minijaturu nije moguće učitati; slika je dodana."
+            );
           }
         } catch {
-          setThumbFailedToast("Thumbnail could not be saved; image was added.");
+          setThumbFailedToast(
+            "Minijaturu nije moguće spremiti; slika je dodana."
+          );
         }
       }
 
       setResult("success");
-      setUploadedPath(
-        typeof promoteData?.finalPath === "string"
-          ? promoteData.finalPath
-          : path
-      );
-      setMessage("Dodano u album");
+      setMessage("Slika je uspješno dodana u album.");
       setFile(null);
       if (inputRef.current) inputRef.current.value = "";
       router.refresh();
     } catch (err) {
       setResult("error");
-      setMessage(err instanceof Error ? err.message : String(err));
+      setMessage(
+        err instanceof Error
+          ? err.message
+          : "Došlo je do neočekivane greške. Pokušajte ponovno."
+      );
     } finally {
       setUploading(false);
     }
@@ -246,7 +267,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload to album</CardTitle>
+        <CardTitle>Dodaj slike u album</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {optimizationSkippedToast && (
@@ -268,27 +289,24 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
             className="max-w-xs"
           />
           <Button onClick={handleUpload} disabled={disabled}>
-            {optimizing ? "Optimizing image…" : uploading ? "Uploading..." : "Upload"}
+            {optimizing
+              ? "Optimiziram sliku…"
+              : uploading
+                ? "Učitavam…"
+                : "Učitaj"}
           </Button>
         </div>
 
         {result === "success" && message && (
           <Alert>
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>
-              {message}
-              {uploadedPath && (
-                <span className="mt-1 block font-mono text-xs">
-                  {uploadedPath}
-                </span>
-              )}
-            </AlertDescription>
+            <AlertTitle>Uspjeh</AlertTitle>
+            <AlertDescription>{message}</AlertDescription>
           </Alert>
         )}
 
         {result === "error" && message && (
           <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Greška</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         )}

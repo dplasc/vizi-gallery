@@ -123,7 +123,17 @@ export default async function PublicUserGalleryPage({ params }: Props) {
         </header>
 
         {list.length === 0 ? (
-          <p className="text-muted-foreground text-center">Nema albuma.</p>
+          <div className="space-y-3 rounded-md border border-border bg-muted/30 px-6 py-10 text-center">
+            <p className="font-medium">Ova galerija još nema javnih albuma.</p>
+            <p className="text-muted-foreground text-sm">
+              Vratite se kasnije ili posjetite profil vlasnika.
+            </p>
+            <Button asChild variant="outline">
+              <Link href={profileUrl} target="_blank" rel="noopener noreferrer">
+                Posjeti profil
+              </Link>
+            </Button>
+          </div>
         ) : (
           <>
             <p className="text-muted-foreground text-sm">Odaberi album</p>

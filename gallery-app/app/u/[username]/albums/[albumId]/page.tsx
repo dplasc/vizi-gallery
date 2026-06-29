@@ -147,9 +147,12 @@ export default async function PublicAlbumPage({ params }: Props) {
           </CardHeader>
           <CardContent>
             {images.length === 0 ? (
-              <p className="text-muted-foreground rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
-                Ovdje će uskoro biti slike.
-              </p>
+              <div className="space-y-2 rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
+                <p className="font-medium">Album je još prazan</p>
+                <p className="text-muted-foreground text-sm">
+                  U ovom albumu još nema slika.
+                </p>
+              </div>
             ) : (
               <AlbumImageGrid images={imagesWithUrlMapped} readOnly />
             )}

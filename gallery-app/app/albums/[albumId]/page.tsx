@@ -50,7 +50,7 @@ export default async function AlbumDetailPage({ params }: Props) {
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Upload to album</CardTitle>
+              <CardTitle>Dodaj slike u album</CardTitle>
               <CardDescription>
                 Prijavi se za učitavanje u ovaj album.
               </CardDescription>
@@ -150,7 +150,8 @@ export default async function AlbumDetailPage({ params }: Props) {
           <UploadToAlbumCard ownerId={userId} albumId={albumId} />
           {images.length === 0 && (
             <p className="text-muted-foreground text-sm">
-              Odaberi datoteku i klikni Upload da dodaš prvu sliku u album.
+              Odaberite datoteku i kliknite Učitaj da dodate prvu sliku u
+              album.
             </p>
           )}
         </section>
@@ -168,9 +169,12 @@ export default async function AlbumDetailPage({ params }: Props) {
           </CardHeader>
           <CardContent>
             {images.length === 0 ? (
-              <p className="text-muted-foreground rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
-                Ovdje će uskoro biti slike.
-              </p>
+              <div className="space-y-2 rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
+                <p className="font-medium">Album je još prazan</p>
+                <p className="text-muted-foreground text-sm">
+                  Dodajte prvu sliku kako bi se prikazala u galeriji.
+                </p>
+              </div>
             ) : (
               <AlbumImageGrid images={imagesWithUrlMapped} />
             )}

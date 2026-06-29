@@ -340,8 +340,14 @@ export default async function AlbumsPage({ searchParams }: Props) {
         ) : isAutoCreateFailed ? (
           null
         ) : (
-          <div className="space-y-4 text-center">
-            <p className="text-muted-foreground">Još nemaš albuma.</p>
+          <div className="space-y-3 rounded-md border border-border bg-muted/30 px-6 py-8 text-center">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Započni svoju galeriju
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Još nemaš albuma. Iskoristi obrazac iznad za kreiranje prvog
+              albuma, zatim dodaj slike i podijeli galeriju na svom profilu.
+            </p>
             <Button asChild variant="outline">
               <Link href={appUrl}>Natrag u Vizi</Link>
             </Button>
