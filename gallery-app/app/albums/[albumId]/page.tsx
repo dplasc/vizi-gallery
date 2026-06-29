@@ -14,6 +14,7 @@ import { UploadToAlbumCard } from "@/components/UploadToAlbumCard";
 import { AlbumImageGrid } from "@/components/AlbumImageGrid";
 import { AlbumDeleteButton } from "@/components/AlbumDeleteButton";
 import { GalleryHeader } from "@/components/gallery-header";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -44,14 +45,12 @@ export default async function AlbumDetailPage({ params }: Props) {
     return (
       <>
         <GalleryHeader />
-      <main className="flex min-h-screen flex-col items-center p-6">
-        <div className="w-full max-w-3xl space-y-8">
-          <div className="flex items-center gap-4">
-            <Button asChild variant="outline" size="default">
-              <Link href="/albums">← Natrag na albume</Link>
-            </Button>
-          </div>
-          <Card>
+      <main className="flex min-h-screen flex-col items-center px-4 py-6 sm:px-6">
+        <div className="w-full max-w-3xl space-y-6">
+          <Button asChild variant="outline" size="default" className="h-8 text-muted-foreground">
+            <Link href="/albums">← Natrag na albume</Link>
+          </Button>
+          <Card className="border-border bg-card shadow-sm">
             <CardHeader>
               <CardTitle>Dodaj slike u album</CardTitle>
               <CardDescription>
@@ -131,58 +130,74 @@ export default async function AlbumDetailPage({ params }: Props) {
   return (
     <>
       <GalleryHeader />
-    <main className="flex min-h-screen flex-col items-center p-6">
-      <div className="w-full max-w-3xl space-y-8">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <Button asChild variant="outline" size="default">
-            <Link href="/albums">← Natrag na albume</Link>
-          </Button>
-          <AlbumDeleteButton albumId={albumId} />
-        </div>
+    <main className="flex min-h-screen flex-col items-center px-4 py-6 sm:px-6">
+      <div className="w-full max-w-3xl space-y-6">
+        <Button asChild variant="outline" size="default" className="h-8 text-muted-foreground">
+          <Link href="/albums">← Natrag na albume</Link>
+        </Button>
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {album.name}
-          </h1>
-          <a
-            href="#upload-area"
-            className={buttonVariants()}
-          >
-            Dodaj slike
-          </a>
-        </div>
+        <section className="space-y-4 border-b border-border pb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-1.5">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {album.name}
+              </h1>
+              <p className="max-w-xl text-sm text-muted-foreground">
+                Dodajte, pregledajte i uredite slike koje se prikazuju u ovom
+                albumu.
+              </p>
+              {album.description && (
+                <p className="text-sm text-muted-foreground">{album.description}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Kreirano: {formatDate(album.created_at)}
+              </p>
+            </div>
+            <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+              <a
+                href="#upload-area"
+                className={cn(buttonVariants(), "w-full sm:w-auto")}
+              >
+                Dodaj slike
+              </a>
+              <AlbumDeleteButton albumId={albumId} />
+            </div>
+          </div>
+        </section>
 
-        <section id="upload-area" className="space-y-3">
-          <UploadToAlbumCard ownerId={userId} albumId={albumId} />
+        <section id="upload-area" className="space-y-2">
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm [&>div]:rounded-none [&>div]:border-0 [&>div]:shadow-none">
+            <UploadToAlbumCard ownerId={userId} albumId={albumId} />
+          </div>
           {images.length === 0 && (
-            <p className="text-muted-foreground text-sm">
+            <p className="px-1 text-sm text-muted-foreground">
               Odaberite datoteku i kliknite Učitaj da dodate prvu sliku u
               album.
             </p>
           )}
         </section>
 
-        <Card>
-          <CardHeader>
-            {album.description && (
-              <CardDescription className="text-base">
-                {album.description}
-              </CardDescription>
+        <Card className="border-border/60 bg-card shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-semibold">Slike u albumu</CardTitle>
+            {images.length > 0 && (
+              <p className="text-xs text-muted-foreground/80">
+                Kliknite na sliku za pregled.
+              </p>
             )}
-            <p className="text-muted-foreground text-sm">
-              Kreirano: {formatDate(album.created_at)}
-            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {images.length === 0 ? (
-              <div className="space-y-2 rounded-md border border-border bg-muted/30 px-4 py-8 text-center">
-                <p className="font-medium">Album je još prazan</p>
+              <div className="space-y-2 rounded-lg border border-border/50 bg-muted/30 px-4 py-8 text-center">
+                <p className="font-medium text-foreground">Album je još prazan</p>
                 <p className="text-muted-foreground text-sm">
                   Dodajte prvu sliku kako bi se prikazala u galeriji.
                 </p>
               </div>
             ) : (
-              <AlbumImageGrid images={imagesWithUrlMapped} />
+              <div className="rounded-lg bg-muted/20 p-3 sm:p-4">
+                <AlbumImageGrid images={imagesWithUrlMapped} />
+              </div>
             )}
           </CardContent>
         </Card>
