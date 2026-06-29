@@ -92,9 +92,11 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
 
   return (
     <>
-      <p className="text-muted-foreground mb-3 text-center text-sm">
-        Kliknite na sliku za pregled.
-      </p>
+      {readOnly && (
+        <p className="text-muted-foreground mb-3 text-center text-sm">
+          Kliknite na sliku za pregled.
+        </p>
+      )}
 
       {!readOnly && deleteError && (
         <div
