@@ -122,12 +122,10 @@ export default function UploadTestPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ownerId: userId,
-            owner_id: userId,
             album_id: TEST_ALBUM_ID,
             filename: fileToUpload.name,
-            content_type: fileToUpload.type,
-            size_bytes: fileToUpload.size,
+            contentType: fileToUpload.type,
+            fileSize: fileToUpload.size,
           }),
         });
       } catch (fetchErr) {

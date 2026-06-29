@@ -101,7 +101,7 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
     const contentType =
       fileToUpload.type && fileToUpload.type.trim()
         ? fileToUpload.type.trim()
-        : "application/octet-stream";
+        : "image/jpeg";
 
     try {
       // Request temp path (no albumId) so promote can copy temp -> album and insert into gallery_images
@@ -109,7 +109,6 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ownerId,
           filename: fileToUpload.name,
           fileSize: fileToUpload.size,
           contentType,
@@ -191,7 +190,6 @@ export function UploadToAlbumCard({ ownerId, albumId }: Props) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              ownerId,
               filename: thumbFile.name,
               fileSize: thumbFile.size,
               contentType: "image/jpeg",
