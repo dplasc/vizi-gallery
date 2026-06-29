@@ -22,7 +22,7 @@ import { GalleryHeader } from "@/components/gallery-header";
 export const dynamic = "force-dynamic";
 
 const GALLERY_BUCKET = "gallery";
-const COVER_SIZE = 96;
+const COVER_SIZE = 112;
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: "Neispravan zahtjev.",
@@ -184,7 +184,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
     : null;
 
   const newAlbumForm = (
-    <Card>
+    <Card className="border-border bg-card shadow-sm">
       <CardHeader>
         <CardTitle>Novi album</CardTitle>
         <CardDescription>Unesi naziv i opcionalno opis.</CardDescription>
@@ -231,70 +231,78 @@ export default async function AlbumsPage({ searchParams }: Props) {
   return (
     <>
       <GalleryHeader />
-    <main className="flex min-h-screen flex-col items-center p-6">
-      <div className="w-full max-w-3xl space-y-8">
+    <main className="flex min-h-screen flex-col items-center px-4 py-6 sm:px-6">
+      <div className="w-full max-w-3xl space-y-6">
         {username && (
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <Button asChild variant="outline" size="default">
-              <Link href={`${getViziBaseUrl()}/${username}`}>
-                ← Natrag na profil
-              </Link>
-            </Button>
-          </div>
+          <Button asChild variant="outline" size="default" className="h-8 text-muted-foreground">
+            <Link href={`${getViziBaseUrl()}/${username}`}>
+              ← Natrag na profil
+            </Link>
+          </Button>
         )}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">Moji albumi</h1>
-          {addSlikeAlbum && (
-            <a
-              href={`/albums/${addSlikeAlbum.id}`}
-              className={buttonVariants()}
-            >
-              Dodaj slike
-            </a>
-          )}
-        </div>
+
+        <section className="space-y-4 border-b border-border pb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1.5">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                Moji albumi
+              </h1>
+              <p className="max-w-xl text-sm text-muted-foreground">
+                Uredite albume i slike koje se prikazuju na vašem Vizi profilu.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              {addSlikeAlbum && (
+                <a
+                  href={`/albums/${addSlikeAlbum.id}`}
+                  className={buttonVariants()}
+                >
+                  Dodaj slike
+                </a>
+              )}
+              {hasAlbums && <NewAlbumDialog />}
+            </div>
+          </div>
+        </section>
 
         {errorMessage && (
           <div
-            className="rounded-md border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+            className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400"
             role="alert"
           >
             {errorMessage}
           </div>
         )}
 
-        {hasAlbums ? (
-          <NewAlbumDialog />
-        ) : (
-          newAlbumForm
-        )}
+        {!hasAlbums && newAlbumForm}
 
         {fetchError ? (
           <p className="text-muted-foreground text-sm">
             Učitavanje albuma nije uspjelo. Pokušaj ponovno kasnije.
           </p>
         ) : albums && albums.length > 0 ? (
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {albums.map((album) => {
               const coverUrl = coverByAlbumId.get(album.id) ?? null;
               const imageCount =
                 imageCountByAlbumId.get(album.id) ?? 0;
+              const isDefaultAlbum = album.name === "Galerija";
               return (
                 <li key={album.id}>
-                  <Card className="transition-colors hover:border-primary/50">
-                    <CardHeader className="relative flex flex-row items-start gap-4 pb-2">
+                  <Card className="overflow-hidden border-border bg-card shadow-sm transition-shadow hover:border-primary/40 hover:shadow-md">
+                    <div className="flex flex-col sm:flex-row sm:items-stretch">
                       <a
                         href={`/albums/${album.id}`}
-                        className="relative z-10 group flex min-w-0 flex-1"
+                        className="group flex min-w-0 flex-1 gap-4 p-4 sm:p-5"
                       >
-                        <div className="relative size-[96px] shrink-0 overflow-hidden rounded-lg bg-muted">
+                        <div className="relative size-[112px] shrink-0 overflow-hidden rounded-xl bg-muted ring-1 ring-border/60">
                           {coverUrl ? (
                             <img
                               src={coverUrl}
                               alt=""
                               width={COVER_SIZE}
                               height={COVER_SIZE}
-                              className="size-full object-cover"
+                              className="size-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
                             />
                           ) : (
                             <div className="flex size-full items-center justify-center bg-muted text-muted-foreground">
@@ -302,39 +310,43 @@ export default async function AlbumsPage({ searchParams }: Props) {
                             </div>
                           )}
                           <div
-                            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-scrim text-xs font-medium uppercase tracking-wide text-scrim-foreground transition-opacity duration-200 opacity-60 group-hover:opacity-100"
+                            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-scrim text-xs font-medium uppercase tracking-wide text-scrim-foreground transition-opacity duration-200 opacity-0 group-hover:opacity-100"
                             aria-hidden
                           >
                             Otvori album
                           </div>
                         </div>
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <CardTitle className="text-lg">
+                        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-base font-semibold text-foreground">
                               {album.name}
-                            </CardTitle>
+                            </span>
                             <span
-                              className="shrink-0 rounded-full border border-border/80 bg-muted/80 px-2 py-0.5 text-xs text-muted-foreground"
+                              className="shrink-0 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground"
                               aria-label={`${imageCount} slika`}
                             >
                               {imageCountLabel(imageCount)}
                             </span>
                           </div>
-                          {album.description && (
-                            <CardDescription>
-                              {album.description}
-                            </CardDescription>
+                          {isDefaultAlbum && (
+                            <p className="text-xs text-muted-foreground/60">
+                              Zadani album na profilu
+                            </p>
                           )}
-                          <p className="text-muted-foreground text-xs">
+                          {album.description && (
+                            <p className="line-clamp-2 text-sm text-muted-foreground">
+                              {album.description}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
                             {formatDate(album.created_at)}
                           </p>
                         </div>
                       </a>
-                      <div className="shrink-0">
+                      <div className="flex items-center border-t border-border px-4 py-3 sm:border-t-0 sm:border-l sm:px-4">
                         <AlbumDeleteButton albumId={album.id} />
                       </div>
-                    </CardHeader>
-                    <CardContent className="pt-0" />
+                    </div>
                   </Card>
                 </li>
               );
@@ -343,7 +355,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
         ) : isAutoCreateFailed ? (
           null
         ) : (
-          <div className="space-y-3 rounded-md border border-border bg-muted/30 px-6 py-8 text-center">
+          <div className="space-y-3 rounded-lg border border-border bg-muted/30 px-6 py-8 text-center shadow-sm">
             <h2 className="text-lg font-semibold tracking-tight">
               Započni svoju galeriju
             </h2>
