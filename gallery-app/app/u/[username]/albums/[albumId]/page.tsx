@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AlbumImageGrid } from "@/components/AlbumImageGrid";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +121,8 @@ export default async function PublicAlbumPage({ params }: Props) {
   const profileUrl = `https://www.vizi.hr/${username}`;
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
         <Button asChild variant="outline" className="text-muted-foreground -ml-2">
@@ -160,5 +163,6 @@ export default async function PublicAlbumPage({ params }: Props) {
         </Card>
       </div>
     </main>
+    </>
   );
 }

@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -58,6 +59,8 @@ export default function LoginPage() {
   }
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <Card>
@@ -108,5 +111,6 @@ export default function LoginPage() {
         </Card>
       </div>
     </main>
+    </>
   );
 }

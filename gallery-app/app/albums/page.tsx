@@ -17,6 +17,7 @@ import {
 import { ImageIcon } from "lucide-react";
 import { NewAlbumDialog } from "./NewAlbumDialog";
 import { AlbumDeleteButton } from "@/components/AlbumDeleteButton";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export const dynamic = "force-dynamic";
 
@@ -228,6 +229,8 @@ export default async function AlbumsPage({ searchParams }: Props) {
   );
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
         {username && (
@@ -355,5 +358,6 @@ export default async function AlbumsPage({ searchParams }: Props) {
         )}
       </div>
     </main>
+    </>
   );
 }

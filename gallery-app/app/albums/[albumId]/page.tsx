@@ -13,6 +13,7 @@ import {
 import { UploadToAlbumCard } from "@/components/UploadToAlbumCard";
 import { AlbumImageGrid } from "@/components/AlbumImageGrid";
 import { AlbumDeleteButton } from "@/components/AlbumDeleteButton";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,8 @@ export default async function AlbumDetailPage({ params }: Props) {
 
   if (!userId) {
     return (
+      <>
+        <GalleryHeader />
       <main className="flex min-h-screen flex-col items-center p-6">
         <div className="w-full max-w-3xl space-y-8">
           <div className="flex items-center gap-4">
@@ -58,6 +61,7 @@ export default async function AlbumDetailPage({ params }: Props) {
           </Card>
         </div>
       </main>
+      </>
     );
   }
 
@@ -125,6 +129,8 @@ export default async function AlbumDetailPage({ params }: Props) {
   });
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen flex-col items-center p-6">
       <div className="w-full max-w-3xl space-y-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -182,5 +188,6 @@ export default async function AlbumDetailPage({ params }: Props) {
         </Card>
       </div>
     </main>
+    </>
   );
 }

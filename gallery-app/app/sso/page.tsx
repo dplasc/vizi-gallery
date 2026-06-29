@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,8 @@ export default async function SSOPage({ searchParams }: Props) {
   }
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-3xl">
         <Card>
@@ -50,6 +53,7 @@ export default async function SSOPage({ searchParams }: Props) {
         </Card>
       </div>
     </main>
+    </>
   );
 }
 
@@ -58,6 +62,8 @@ function SSOError() {
   const appUrl = `${viziBase}/app`;
 
   return (
+    <>
+      <GalleryHeader />
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-3xl">
         <Card>
@@ -77,5 +83,6 @@ function SSOError() {
         </Card>
       </div>
     </main>
+    </>
   );
 }

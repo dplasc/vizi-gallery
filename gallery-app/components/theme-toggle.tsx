@@ -25,7 +25,7 @@ export function ThemeToggle() {
       type="button"
       variant="outline"
       size="default"
-      className="h-9 shrink-0 gap-2 border-border bg-background px-3 text-foreground shadow-sm hover:bg-muted"
+      className="h-9 shrink-0 gap-2 border-2 border-border bg-card px-3 text-foreground shadow-sm hover:bg-muted"
       aria-label="Promijeni temu"
       title="Promijeni temu"
       onClick={handleToggle}
