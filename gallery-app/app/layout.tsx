@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { GalleryHeader } from "@/components/gallery-header";
 
 export const metadata: Metadata = {
   title: "Galerija — Vizi.hr",
@@ -12,9 +14,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="hr" className="dark">
+    <html lang="hr" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <GalleryHeader />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
