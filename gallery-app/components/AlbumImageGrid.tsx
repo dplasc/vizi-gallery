@@ -146,7 +146,7 @@ export function AlbumImageGrid({ images, readOnly = false }: Props) {
                   setDeleteError(null);
                   setDeleteTargetId(img.id);
                 }}
-                className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded bg-black/50 text-white transition-opacity hover:bg-red-600 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+                className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded bg-scrim-muted text-scrim-foreground transition-opacity hover:bg-destructive hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
                 aria-label="Obriši sliku"
               >
                 <Trash2 className="h-4 w-4" />

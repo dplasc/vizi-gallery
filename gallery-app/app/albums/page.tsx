@@ -299,7 +299,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
                             </div>
                           )}
                           <div
-                            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 text-xs font-medium uppercase tracking-wide text-white/95 transition-opacity duration-200 opacity-60 group-hover:opacity-100"
+                            className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-scrim text-xs font-medium uppercase tracking-wide text-scrim-foreground transition-opacity duration-200 opacity-60 group-hover:opacity-100"
                             aria-hidden
                           >
                             Otvori album
